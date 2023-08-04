@@ -36,3 +36,4 @@ def generate_api_response(user_text):
         # Catch any exceptions that might occur during the API call
         print(f"An error occurred: {e}")
 
+
