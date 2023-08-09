@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div>
+  <h1>Let's review your text!</h1>
+  <h2>Your Submission:</h2>
+    <p>{{ text.original_text }}</p>
+  <h2>Edited Version:</h2>
+    <p>{{ text.edited_text }}</p>
+  <h2>Errors Found:</h2>
+    <h3>Grammar Errors:</h3>
+        <ul>
+          {% for error_html in html_grammar_errors %}
+            {{ error_html | safe }}
+            <br>
+          {% endfor %}
+        </ul>
+    <h3>Spelling Errors:</h3>
+        <ul>
+          {% for error_html in html_spelling_errors %}
+            {{ error_html | safe }}
+            <br>
+          {% endfor %}
+        </ul>
+</div>
+
+{% endblock %}
+
+
+

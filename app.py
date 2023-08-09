@@ -5,17 +5,16 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
 from forms import SignupForm, LoginForm, SubmitTextForm
-from models import db, connect_db, User
+from models import db, connect_db, User, Text
 
 import pdb
 import bcrypt
 
-CURR_USER_KEY = "curr_user"
+CURR_USER_KEY = ""
 
 app = Flask(__name__)
 
-# Get DB_URI from environ variable (useful for production/testing) or,
-# if not set there, use development local db.
+# Get DB_URI from environ variable (useful for production/testing) or, if not set there, use development local db
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     os.environ.get('DATABASE_URL', 'postgresql://kksluwoo:k-o2ThSbwF-GIbqCJKw7iQ9hnSv0Xd7X@mahmud.db.elephantsql.com/kksluwoo'))
 
@@ -23,29 +22,23 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 # app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
-
 app.config['DEBUG'] = True
 
 toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 
-
-# JUST ADDED
 with app.app_context():
-    db.drop_all()
+    # db.drop_all()
     db.create_all()
-
-    # Commit the changes to the database
     db.session.commit()
 
 
 ##############################################################################
-# User signup/login/logout
+# User signup/login/logout routes
 
 @app.before_request
 def add_user_to_g():
-    """If we're logged in, add curr user to Flask global."""
 
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
@@ -55,16 +48,11 @@ def add_user_to_g():
 
 
 def do_login(user):
-    """Log in user."""
 
     session[CURR_USER_KEY] = user.id
 
 
 def do_logout():
-    """Logout user."""
-
-    print('starting logout')
-    print('do_logout session[CURR_USER_KEY]', session[CURR_USER_KEY])
 
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
@@ -72,22 +60,15 @@ def do_logout():
 
 @app.route('/')
 def redirect_from_root():
-    """Show signup/login page if not logged in, otherwise show submit_text.html"""
 
     if not g.user:
         return redirect('/signup')
     else:
-        return render_template('hello.html')
+        return redirect('/submit_text')
 
 
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
-    """Handle user signup.
-    Create new user and add to DB. Redirect to home page.
-    If form not valid, present form.
-    If there already is a user with that username: flash message
-    and re-present form.
-    """
 
     form = SignupForm()
 
@@ -98,6 +79,7 @@ def signup():
                 password=form.password.data,
                 email=form.email.data
             )
+            db.session.add(user)
             db.session.commit()
 
         except IntegrityError:
@@ -114,29 +96,20 @@ def signup():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
-    """Handle user login."""
 
     form = LoginForm()
 
     if form.is_submitted() and form.validate():
 
-        print('form.username.data', form.username.data)
-        print('form.password.data', form.password.data)
-
         user = User.authenticate(form.username.data,
                                  form.password.data)
-        
-        print('Login route user', user)
 
         if user:
-            print('BREAK222222222222222222>>>>>>>>>>>>>>>>>>')
             do_login(user)
-            print('BREAK33333333333333333>>>>>>>>>>>>>>>>>>>>>>')
             flash(f"Hello, {user.username}!", "success")
             # TODO change redirect
             return redirect("/")
 
-        print('BREAK4444444444444444444>>>>>>>>>>>>>>>>>>>>>>>>')
         flash("Invalid credentials.", 'danger')
 
     return render_template('login.html', form=form)
@@ -144,20 +117,19 @@ def login():
 
 @app.route('/logout')
 def logout():
-    """Handle logout of user."""
 
     do_logout()
-    print('just did do_logout')
-    # print('session[CURR_USER_KEY]', session[CURR_USER_KEY])
     flash("You've been logged out.")
     return redirect('/login')
 
 
-# Grammar Routes
+##############################################################################
+# Error Routes
 
 @app.route('/submit_text', methods=["GET", "POST"])
 def submit_text():
-    """Show form to submit text and handle submission"""
+
+    from errors import generate_api_response, isolate_errors_from_api_response, add_errors_to_db, generate_grammar_errors_html, grammar_error_descriptions, apply_all_corrections, add_errors_to_db, generate_spelling_errors_html, add_text_to_db
 
     form = SubmitTextForm()
 
@@ -166,13 +138,38 @@ def submit_text():
         return redirect("/")
     
     if form.is_submitted() and form.validate():
-        user = User.authenticate(form.username.data,
-                                 form.password.data)
 
-        # if user:
-        #     text = Text(
+        user = g.user
+        
+        text_to_submit = form.text.data
 
-        #     )
-        return
+        print('g.user', g.user)
 
-    return render_template('submit_text.html')
+        with app.app_context():
+
+            g.user = User.query.get(session[CURR_USER_KEY])
+
+            api_response = generate_api_response(text_to_submit)
+
+            grammar_errors_list = isolate_errors_from_api_response(api_response, 'grammar')
+            spelling_errors_list = isolate_errors_from_api_response(api_response, 'spelling')
+
+            corrected_text = apply_all_corrections(text_to_submit, grammar_errors_list, spelling_errors_list)
+
+            new_text = add_text_to_db(user.id, text_to_submit, corrected_text)
+
+            add_errors_to_db(grammar_errors_list, spelling_errors_list, user.id, new_text.id)
+
+            html_grammar_errors = generate_grammar_errors_html(grammar_errors_list, grammar_error_descriptions)
+            html_spelling_errors = generate_spelling_errors_html(spelling_errors_list)
+
+            db.session.add(new_text)
+            db.session.commit()
+
+            flash("Text submitted successfully!", "success")
+
+            print('g.user', g.user)
+
+            return render_template('review_text_submission.html', text=new_text, html_grammar_errors=html_grammar_errors, html_spelling_errors=html_spelling_errors) 
+
+    return render_template('submit_text.html', form=form)

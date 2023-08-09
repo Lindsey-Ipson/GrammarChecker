@@ -19,7 +19,7 @@ class User(db.Model):
     username = db.Column(
         db.Text,
         nullable=False,
-        unique=True,
+        unique=True
     )
 
     password = db.Column(
@@ -38,9 +38,6 @@ class User(db.Model):
     
     @classmethod
     def signup(cls, username, email, password):
-        """Sign up user.
-        Hashes password and adds user to system.
-        """
 
         hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
 
@@ -55,16 +52,13 @@ class User(db.Model):
 
     @classmethod
     def authenticate(cls, username, password):
-        """Find user with `username` and `password`.
-        This is a class method (called on the class, not an individual user.)
+        """Class method - called on the class, not an individual user.
         It searches for a user whose password hash matches this password
         and, if it finds such a user, returns that user object.
         If can't find matching user (or if password is wrong), returns False.
         """
 
         user = cls.query.filter_by(username=username).first()
-
-        print('authenticate user', user)
 
         if user:
             is_auth = bcrypt.check_password_hash(user.password, password)
@@ -110,7 +104,7 @@ class Text(db.Model):
         return f"<Text id: {self.id}, user: {self.user_id}, original_text: {self.original_text}>"
     
 
-class Grammar_Errors(db.Model):
+class Grammar_Error(db.Model):
 
     __tablename__ = 'grammar_errors'
 
@@ -129,6 +123,11 @@ class Grammar_Errors(db.Model):
     text_id = db.Column(
         db.Integer,
         db.ForeignKey('texts.id'),
+        nullable=False
+    )
+
+    error_type = db.Column(
+        db.Text,
         nullable=False
     )
 
@@ -162,7 +161,7 @@ class Grammar_Errors(db.Model):
         return f"<Grammar_Error id: {self.id}, user: {self.user_id}, replacement: {self.replacement}>"
 
 
-class Spelling_Errors(db.Model):
+class Spelling_Error(db.Model):
    
     __tablename__ = 'spelling_errors'
 
@@ -215,10 +214,6 @@ class Spelling_Errors(db.Model):
     
 
 def connect_db(app):
-    """Connect this database to provided Flask app.
-    Should call this in Flask app.
-    """
-
     db.app = app
     db.init_app(app)
 
