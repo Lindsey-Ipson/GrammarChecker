@@ -1,31 +1,33 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 
 <div>
   <h1>Let's review your text!</h1>
   <h2>Your Submission:</h2>
-    <p>{{ text.original_text }}</p>
+  <p>{{ text.original_text }}</p>
   <h2>Edited Version:</h2>
-    <p>{{ text.edited_text }}</p>
+  <p>{{ text.edited_text }}</p>
   <h2>Errors Found:</h2>
-    <h3>Grammar Errors:</h3>
-        <ul>
-          {% for error_html in html_grammar_errors %}
-            {{ error_html | safe }}
-            <br>
-          {% endfor %}
-        </ul>
-    <h3>Spelling Errors:</h3>
-        <ul>
-          {% for error_html in html_spelling_errors %}
-            {{ error_html | safe }}
-            <br>
-          {% endfor %}
-        </ul>
+  <h3>Grammar Errors:</h3>
+  <ul>
+    {% for error in html_grammar_errors %}
+    <li>{{ error["error_description"] }}</li>
+    <li>
+      {{ error["sentence"][:error["start"]] }}<b>{{ error["sentence"][error["start"]:error["end"]] }}</b>{{ error["sentence"][error["end"]:] }}
+    </li>
+    <li class="hide-bullet">Replacement: <b>{{ error["replacement"] }}</b></li>
+    <br />
+    {% endfor %}
+  </ul>
+  <h3>Spelling Errors:</h3>
+  <ul>
+    {% for error in html_spelling_errors %}
+    <li>
+      {{ error["sentence"][:error["start"]] }}<b>{{ error["sentence"][error["start"]:error["end"]] }}</b>{{ error["sentence"][error["end"]:] }}
+    </li>
+    <li class="hide-bullet">Replacement: <b>{{ error["replacement"] }}</b></li>
+    <br />
+    {% endfor %}
+  </ul>
 </div>
 
 {% endblock %}
-
-
-

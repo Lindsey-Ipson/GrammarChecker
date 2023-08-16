@@ -1,3 +1,28 @@
 .hide-bullet {
     list-style: none;
 }
+
+/* ul {
+    margin: 0;
+    padding: 0;
+  } */
+  
+  /* li {
+    margin: 0;
+    padding: 0;
+  }
+   */
+
+   
+  /* b {
+    margin: 0;
+    padding: 0;
+  } */
+
+  .divider {
+    margin: 30;
+  }
+
+  .remove-text {
+    font-style: italic;
+  }

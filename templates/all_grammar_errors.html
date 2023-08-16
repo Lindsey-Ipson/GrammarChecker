@@ -1,16 +1,31 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 
 <h1>Let's review your grammar errors</h1>
 
+{# NOTE rename error_type_review? error_type_summary error_group #}
 <ul>
-{% for error in all_grammar_errors %}
+  {% for error_type in all_grammar_errors %}
+  {% if error_type.count == 1 %}
+  <li>{{grammar_error_descriptions[error_type.error_type]}} - {{ error_type.count }} count </li>
+  {% else %}
+  <li>{{grammar_error_descriptions[error_type.error_type]}} - {{ error_type.count }} counts </li>
+  {% endif %}
 
-<li></li>
-
-
-{% endfor %}
+    {% for error in error_type['errors'] %}
+      <ul>
+        <li>error id: {{ error.id }}</li>
+        <li>error user_id: {{ error.user_id }} </li>
+        <li>{{ error.sentence[:error.start] }}<b>{{ error.sentence[error.start:error.end] }}</b>{{ error.sentence[error.end:] }} <span class="divider">→</span> 
+        {% if error.replacement %} 
+        <b>{{ error.replacement }}</b> 
+        {% else %} 
+        <span class="remove-text">remove bolded text</span> 
+        {% endif %}
+        </li>
+      </ul>
+    <br />
+    {% endfor %}
+  {% endfor %}
 </ul>
 
 {% endblock %}

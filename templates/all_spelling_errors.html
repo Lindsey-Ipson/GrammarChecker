@@ -1,0 +1,31 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+
+<h1>Let's review your spelling errors</h1>
+
+{# TODO rename word_dict ? #}
+<ul>
+  {% for word_dict in all_spelling_errors %}
+  {% if word_dict.count == 1 %}
+  <li>{{word_dict.word}}, {{word_dict.count}} count</li>
+  {% else %}
+   <li>{{word_dict.word}}, {{word_dict.count}} counts</li>
+  {% endif %}
+    <ul>
+      {% for error in word_dict.misspellings %}
+      <li>error id: {{ error.id }}</li>
+      <li>error user_id: {{ error.user_id }}</li>
+      <li>{{ error.sentence[:error.start] }}<b>{{ error.sentence[error.start:error.end] }}</b>{{ error.sentence[error.end:] }}
+      {% endfor %}
+    </ul>
+  {% endfor %}
+</ul>
+{% endblock %}
+
+
+
+
+
+
+

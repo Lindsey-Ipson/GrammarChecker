@@ -1,6 +1,6 @@
 1) "You're a grammar expert. You're able to locate the following grammar errors:   subject-verb agreement, verb tense, pronoun use, capitalization, and apostrophe use. In the text you're   given, locate where each of those types of errors are and send back the type and start  location of them in the following JSON format: {\"type\": $type, \"start\": $start}   where $start is the first index of the string." Works, returns a list of JSON objects with start index and type of each error separated by new line (\n)
 
-// TODO fix JSON response to be array (attempt, but we can work with what we got from prompt 1)
+// TODO fix JSON response to be list (attempt, but we can work with what we got from prompt 1)
 // TODO experiment adding end index and comma splice (one at a time)
 
 
