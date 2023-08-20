@@ -4,13 +4,12 @@ from flask import Flask, render_template, request, flash, redirect, session, g, 
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from errors import generate_api_response, isolate_errors_from_api_response, add_errors_to_db, generate_grammar_errors_html, grammar_error_descriptions, apply_all_corrections, add_errors_to_db, generate_spelling_errors_html, add_text_to_db, order_error_types_by_frequency, create_show_all_grammar_errors_objects, get_misspelled_word_counts, create_spelling_error_html_objects
+from errors import generate_api_response, isolate_errors_from_api_response, add_errors_to_db, apply_all_corrections, add_errors_to_db, add_text_to_db, get_error_type_counts, create_review_text_html_errors, create_show_all_html_errors
 
 from forms import SignupForm, LoginForm, SubmitTextForm
 from models import db, connect_db, User, Text
 
 import pdb
-import bcrypt
 
 CURR_USER_KEY = ""
 
@@ -90,7 +89,7 @@ def signup():
 
         do_login(user)
 
-        return redirect("/")
+        return redirect("/submit_text")
 
     else:
         return render_template('signup.html', form=form)
@@ -109,8 +108,7 @@ def login():
         if user:
             do_login(user)
             flash(f"Hello, {user.username}!", "success")
-            # TODO change redirect
-            return redirect("/")
+            return redirect("/subit_text")
 
         flash("Invalid credentials.", 'danger')
 
@@ -135,7 +133,7 @@ def submit_text():
 
     if not g.user:
         flash("Access unauthorized.", "danger")
-        return redirect("/")
+        return redirect("/signup")
     
     if form.is_submitted() and form.validate():
 
@@ -145,29 +143,30 @@ def submit_text():
 
         api_response = generate_api_response(text_to_submit)
 
-        grammar_errors_list = isolate_errors_from_api_response(api_response, 'grammar')
-        spelling_errors_list = isolate_errors_from_api_response(api_response, 'spelling')
+        grammar_errors_from_api = isolate_errors_from_api_response(api_response, 'Grammar')
+ 
+        spelling_errors_from_api = isolate_errors_from_api_response(api_response, 'Spelling')
 
-        corrected_text = apply_all_corrections(text_to_submit, grammar_errors_list, spelling_errors_list)
+        corrected_text = apply_all_corrections(text_to_submit, grammar_errors_from_api, spelling_errors_from_api)
 
         new_text = add_text_to_db(user.id, text_to_submit, corrected_text)
 
-        add_errors_to_db(grammar_errors_list, spelling_errors_list, user.id, new_text.id)
+        add_errors_to_db(grammar_errors_from_api, spelling_errors_from_api, user.id, new_text.id)
 
-        html_grammar_errors = generate_grammar_errors_html(grammar_errors_list, grammar_error_descriptions)
-        html_spelling_errors = generate_spelling_errors_html(spelling_errors_list)
+        grammar_html_errors = create_review_text_html_errors(grammar_errors_from_api, 'grammar')
+        spelling_html_errors = create_review_text_html_errors(spelling_errors_from_api, 'spelling')
 
         db.session.add(new_text)
         db.session.commit()
 
         flash("Text submitted successfully!", "success")
 
-        return render_template('review_text_submission.html', text=new_text, html_grammar_errors=html_grammar_errors,html_spelling_errors=html_spelling_errors) 
+        return render_template('review_text_submission.html', text=new_text, grammar_html_errors=grammar_html_errors, spelling_html_errors=spelling_html_errors) 
 
     return render_template('submit_text.html', form=form)
 
 
-@app.route('/show_all_grammar_errors', methods=["GET", "POST"])
+@app.route('/show_all_grammar_errors', methods=["GET"])
 def show_all_grammar_errors():
 
     user = g.user
@@ -176,14 +175,14 @@ def show_all_grammar_errors():
         flash("Access unauthorized.", "danger")
         return redirect("/signup")
 
-    error_types_ordered_by_frequency = order_error_types_by_frequency(user.id)
+    error_type_counts = get_error_type_counts(user.id, 'Grammar')
 
-    show_all_errors_objects = create_show_all_grammar_errors_objects(error_types_ordered_by_frequency)
+    html_errors = create_show_all_html_errors(error_type_counts, 3, 'Grammar')
 
-    return render_template('all_grammar_errors.html', all_grammar_errors=show_all_errors_objects, grammar_error_descriptions=grammar_error_descriptions)
+    return render_template('all_grammar_errors.html', all_grammar_errors=html_errors)
 
 
-@app.route('/show_all_spelling_errors', methods=["GET", "POST"])
+@app.route('/show_all_spelling_errors', methods=["GET"])
 def show_all_spelling_errors():
 
     user = g.user
@@ -192,11 +191,11 @@ def show_all_spelling_errors():
         flash("Access unauthorized.", "danger")
         return redirect("/signup")
 
-    word_counts = get_misspelled_word_counts(user.id)
+    error_type_counts = get_error_type_counts(user.id, 'Spelling')
 
-    spelling_error_html_objects = create_spelling_error_html_objects(word_counts, user.id)
+    html_errors = create_show_all_html_errors(error_type_counts, 3, 'Spelling')
 
-    return render_template('all_spelling_errors.html', all_spelling_errors=spelling_error_html_objects)
+    return render_template('all_spelling_errors.html', all_spelling_errors=html_errors)
 
 
 

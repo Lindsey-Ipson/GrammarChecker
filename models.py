@@ -158,7 +158,7 @@ class Grammar_Error(db.Model):
     )
 
     def __repr__(self):
-        return f"<Grammar_Error id: {self.id}, user: {self.user_id}, replacement: {self.replacement}>"
+        return f"<Grammar_Error id: {self.id}, user: {self.user_id}, error_type: {self.error_type}, replacement: {self.replacement}>"
 
 
 class Spelling_Error(db.Model):

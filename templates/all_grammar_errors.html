@@ -2,16 +2,15 @@
 
 <h1>Let's review your grammar errors</h1>
 
-{# NOTE rename error_type_review? error_type_summary error_group #}
 <ul>
   {% for error_type in all_grammar_errors %}
   {% if error_type.count == 1 %}
-  <li>{{grammar_error_descriptions[error_type.error_type]}} - {{ error_type.count }} count </li>
+  <li>{{ error_type.error_name }} - {{ error_type.count }} count </li>
   {% else %}
-  <li>{{grammar_error_descriptions[error_type.error_type]}} - {{ error_type.count }} counts </li>
+  <li>{{ error_type.error_name }} - {{ error_type.count }} counts </li>
   {% endif %}
 
-    {% for error in error_type['errors'] %}
+    {% for error in error_type.errors %}
       <ul>
         <li>error id: {{ error.id }}</li>
         <li>error user_id: {{ error.user_id }} </li>

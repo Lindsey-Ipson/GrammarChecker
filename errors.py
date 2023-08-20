@@ -8,65 +8,35 @@ from sqlalchemy import func, desc
 
 from models import Grammar_Error, Spelling_Error, Text, db
 
-
 API_key = os.environ.get("SAPLING_API_KEY") # to write in local machine: export SAPLING_API_KEY=value
+    
 
-grammar_error_descriptions = {
-    "M:PART": "Missing particle",
-    "M:PUNCT": "Missing punctuation",
-    "M:CONJ": "Missing conjunction",
-    "M:DET": "Missing determiner",
-    "M:DET:ART": "Missing article",
-    "M:PREP": "Missing preposition",
-    "M:PRON": "Missing pronoun",
-    "M:VERB": "Missing verb",
-    "M:VERB:TENSE": "Missing verb tense",
-    "M:ADJ": "Missing adjective",
-    "M:NOUN": "Missing noun",
-    "M:NOUN:POSS": "Missing possessive noun",
-    "M:OTHER": "Missing other elements",
-    "R:PART": "Incorrect particle",
-    "R:PUNCT": "Incorrect punctuation",
-    "R:ORTH": "Incorrect orthography",
-    "R:SPELL": "Incorrect spelling",
-    "R:WO": "Incorrect word order",
-    "R:MORPH": "Incorrect word form",
-    "R:ADV": "Incorrect adverb",
-    "R:CONTR": "Incorrect contraction",
-    "R:CONJ": "Incorrect conjunction",
-    "R:DET": "Incorrect determiner",
-    "R:DET:ART": "Incorrect article",
-    "R:PREP": "Incorrect preposition",
-    "R:PRON": "Incorrect pronoun",
-    "R:VERB:FORM": "Incorrect verb form",
-    "R:VERB:TENSE": "Incorrect verb tense",
-    "R:VERB:SVA": "Incorrect subject-verb agreement",
-    "R:ADJ:FORM": "Incorrect adjective form",
-    "R:NOUN:INFL": "Incorrect noun inflection",
-    "R:NOUN:NUM": "Incorrect noun number",
-    "R:OTHER": "Replacement of phrase not easily categorized",
-    "U:PART": "Unnecessary particle",
-    "U:PUNCT": "Unnecessary punctuation",
-    "U:ADV": "Unnecessary adverb",
-    "U:CONTR": "Unnecessary contraction",
-    "U:CONJ": "Unnecessary conjunction",
-    "U:DET": "Unnecessary determiner",
-    "U:DET:ART": "Unnecessary article",
-    "U:PREP": "Unnecessary preposition",
-    "U:PRON": "Unnecessary pronoun",
-    "U:VERB": "Unnecessary verb",
-    "U:ADJ": "Unnecessary adjective",
-    "U:NOUN": "Unnecessary noun",
-    "U:NOUN:POSS": "Unnecessary possessive noun",
-    "U:OTHER": "Unnecessary text"
-}
+# HELPER FUNCTIONS --------------------------------------------------------------------------
 
+def split_text_at_colon(text):
+
+    parts = text.split(":", 1)
+    before_colon, after_colon = parts
+    return before_colon, after_colon
+
+
+def parse_error_subcategory(subcategory_code):
+
+    subcategory_part_1_code, subcategory_part_2_code = split_text_at_colon(subcategory_code)
+
+    subcategory_part_1_codes = {'M': 'Missing', 'R': 'Incorrect', 'U': 'Unnecessary'}
+
+    subcategory_part_2_codes = { 'PART': 'particle', 'PUNCT': 'punctuation', 'ORTH': 'orthography', 'SPELL': 'spelling', 'WO': 'word order', 'MORPH': 'word form', 'ADV': 'adverb', 'CONTR': 'contraction', 'CONJ': 'conjunction', 'DET': 'determiner', 'DET:ART': 'article', 'PREP': 'preposition', 'PRON': 'pronoun', 'VERB': 'verb', 'VERB:FORM': 'verb form', 'VERB:TENSE': 'verb tense', 'VERB:SVA': 'subject-verb agreement', 'VERB:INFL': 'verb inflection', 'ADJ': 'adjective', 'ADJ:FORM': 'adjective form', 'NOUN': 'noun', 'NOUN:POSS': 'noun possessive', 'NOUN:INFL': 'noun inflection', 'NOUN:NUM': 'noun number', 'OTHER': 'other' }
+
+    return f'{subcategory_part_1_codes[subcategory_part_1_code]} {subcategory_part_2_codes[subcategory_part_2_code]}'
+
+
+# API FUNCTIONS --------------------------------------------------------------------------
 
 def generate_api_response(user_text):
 
     url = 'https://api.sapling.ai/api/v1/edits'
 
-    # Generate a random UUID (version 4) as a string
     uuid_string = str(uuid.uuid4())
 
     data_to_send = {
@@ -94,12 +64,12 @@ def isolate_errors_from_api_response(api_response_data, general_error_type):
 
     errors_list = []
 
-    if general_error_type == 'grammar':
+    if general_error_type == 'Grammar':
         for error in api_response_data['edits']:
             if error['general_error_type'] == 'Grammar':
                 errors_list.append(error)
 
-    elif general_error_type == 'spelling':
+    elif general_error_type == 'Spelling':
         for error in api_response_data['edits']:
             if error['general_error_type'] == 'Spelling':
                 errors_list.append(error)
@@ -107,8 +77,9 @@ def isolate_errors_from_api_response(api_response_data, general_error_type):
     return errors_list
 
 
+# DATABASE FUNCTIONS --------------------------------------------------------------------------
+
 def add_errors_to_db(grammar_errors_list, spelling_errors_list, user_id, text_object_id): 
-# NOTE change text object?
         
         for error in grammar_errors_list:
             new_grammar_error = Grammar_Error(
@@ -136,82 +107,25 @@ def add_errors_to_db(grammar_errors_list, spelling_errors_list, user_id, text_ob
             db.session.commit()
 
 
-# def add_spelling_errors_to_db(spelling_errors_list, user_id, text_object_id): 
-
-#     for error in spelling_errors_list:
-    
-#         new_grammar_error = Grammar_Error(
-#             user_id=user_id,
-#             text_id=text_object_id,
-#             start=error['start'],
-#             end=error['end'],
-#             replacement=error['replacement'],
-#             sentence=error['sentence']
-#         )
-    
-#         db.session.add(new_grammar_error)
-#         db.session.commit()
-
-
 def add_text_to_db(user_id, text_to_submit, corrected_text):
 
-        new_text = Text(
-            original_text=text_to_submit,
-            user_id=user_id,
-            timestamp = datetime.utcnow(),
-            edited_text = corrected_text
-        )
+    new_text = Text(
+        original_text=text_to_submit,
+        user_id=user_id,
+        timestamp = datetime.utcnow(),
+        edited_text = corrected_text
+    )
 
-        db.session.add(new_text)
-        db.session.commit()
+    db.session.add(new_text)
+    db.session.commit()
 
-        return new_text
-
-
-def generate_grammar_errors_html(error_list, grammar_error_descriptions):
-    html_errors_list = []
-
-    for error in error_list:
-
-        replacement = error["replacement"]
-        if replacement == "":
-            replacement = "(None - simply remove)"
-
-        new_error_object = {
-            "error_description": grammar_error_descriptions.get(error["error_type"], "Unknown error"),
-            "sentence": error["sentence"],
-            "start": error["start"],
-            "end": error["end"],
-            "replacement": replacement
-        }
-
-        html_errors_list.append(new_error_object)
-    
-    return html_errors_list
+    return new_text
 
 
-def generate_spelling_errors_html(error_list):
-    html_errors_list = []
-
-    for error in error_list:
-
-        replacement = error["replacement"]
-        if replacement == "":
-            replacement = "(None - simply remove)"
-
-        new_error_object = {
-            "sentence": error["sentence"],
-            "start": error["start"],
-            "end": error["end"],
-            "replacement": replacement
-        }
-
-        html_errors_list.append(new_error_object)
-    
-    return html_errors_list
-
+# ERROR FUNCTIONS --------------------------------------------------------------------------
 
 def apply_all_corrections(text, grammar_errors_list, spelling_errors_list):
+    
     edits = grammar_errors_list + spelling_errors_list
     text = str(text)
     edits = sorted(edits, key=lambda e: (e['sentence_start'] + e['start']), reverse=True)
@@ -225,74 +139,88 @@ def apply_all_corrections(text, grammar_errors_list, spelling_errors_list):
     return text
 
 
-def order_error_types_by_frequency(user_id):
-    print('getting error type counts for ', user_id)
+def get_errors_for_type(general_error_type, user_id, error_type):
+    
+    if general_error_type == "Grammar":
+        errors = (
+        Grammar_Error.query.filter(Grammar_Error.error_type == error_type, Grammar_Error.user_id == user_id)
+        .order_by(Grammar_Error.timestamp.desc())
+        .all()
+        )
+    elif general_error_type == "Spelling":
+        errors = (
+        Spelling_Error.query.filter(Spelling_Error.user_id == user_id, Spelling_Error.replacement == error_type)
+        .order_by(Spelling_Error.timestamp.desc())
+        .all()
+        )
 
-    error_types_and_counts = (
-        db.session.query(Grammar_Error.error_type, func.count (Grammar_Error.error_type))
-        .filter(Grammar_Error.user_id == user_id)
-        .group_by(Grammar_Error.error_type)
-        .order_by(func.count(Grammar_Error.error_type).desc())
+    else:
+        raise ValueError("Invalid error type")
+
+    return errors
+
+    
+def get_error_type_counts(user_id, general_error_type):
+    
+    if general_error_type == "Grammar":
+        error_model = Grammar_Error
+        error_type = Grammar_Error.error_type
+    elif general_error_type == "Spelling":
+        error_model = Spelling_Error
+        error_type = Spelling_Error.replacement
+    else:
+        raise ValueError("Invalid error type")
+
+    error_counts = (
+        db.session.query(error_type, func.count(error_type))
+        .filter(error_model.user_id == user_id)
+        .group_by(error_type)
+        .order_by(func.count(error_type).desc())
         .all()
     )
 
-    result = [{"error_type": error_type, "count": count} for error_type, count in error_types_and_counts]
+    result = [{"error_type": error, "count": count} for error, count in error_counts]
 
     return result
 
 
-def get_grammar_errors_for_error_type(error_type):
-       
-    grammar_error_instances_list = (
-        Grammar_Error.query.filter(Grammar_Error.error_type == error_type, Grammar_Error.user_id == g.user.id)
-        .order_by(Grammar_Error.timestamp.desc())
-        .all()
-    )
+def create_review_text_html_errors(error_list, general_error_type):
+    
+    html_errors_list = []
 
-    return grammar_error_instances_list
+    for error in error_list:
+
+        replacement = error["replacement"]
+        if replacement == "":
+            replacement = "(None - simply remove)"
+
+        new_error_object = {
+            "sentence": error["sentence"],
+            "start": error["start"],
+            "end": error["end"],
+            "replacement": replacement,
+        }
+
+        if general_error_type == "grammar":
+            new_error_object["error_name"] = parse_error_subcategory(error["error_type"])       
+
+        html_errors_list.append(new_error_object)
+    
+    return html_errors_list
 
 
-def create_show_all_grammar_errors_objects(error_types_ordered_by_frequency):
+def create_show_all_html_errors(error_types_and_counts, user_id, general_error_type):
+    
     show_all_errors_objects = []
 
-    for error_type_object in error_types_ordered_by_frequency:
-        error_type_object['errors'] = get_grammar_errors_for_error_type(error_type_object['error_type'])
-        show_all_errors_objects.append(error_type_object)
+    for error_type in error_types_and_counts:
+        error_type['errors'] = get_errors_for_type(general_error_type, user_id, error_type['error_type'])
+
+        if general_error_type == "Grammar":
+            error_type["error_name"] = parse_error_subcategory(error_type["error_type"])  
+
+        show_all_errors_objects.append(error_type)
 
     return show_all_errors_objects
-
-
-def get_misspelled_word_counts(user_id):
-
-    word_counts = db.session.query(
-        Spelling_Error.replacement,
-        func.count(Spelling_Error.replacement).label('count')
-    ).filter(Spelling_Error.user_id == user_id).group_by(Spelling_Error.replacement).order_by(func.count(Spelling_Error.replacement).desc()).all()
-
-    return word_counts
-
-
-def get_misspelled_errors_for_word(word, user_id):
-    # Query to get a list of misspelled errors for a specific word
-    errors = (
-        Spelling_Error.query.filter(Spelling_Error.user_id == user_id, Spelling_Error.replacement == word)
-    .order_by(Spelling_Error.timestamp.desc())
-    .all()
-    )
-
-    return errors
-
-
-def create_spelling_error_html_objects(word_counts, user_id):
-    # Create a list of objects for each misspelled word
-    spelling_errors = []
-    for word, count in word_counts:
-        new_object = {"word": word, "count": count}
-        errors_for_word = get_misspelled_errors_for_word(word, user_id)
-        new_object["misspellings"] = errors_for_word
-        spelling_errors.append(new_object)
-
-    return spelling_errors
-
 
 

@@ -9,9 +9,9 @@
   <h2>Errors Found:</h2>
   <h3>Grammar Errors:</h3>
   <ul>
-    {% for error in html_grammar_errors %}
-    <li>{{ error["error_description"] }}</li>
-    <li>
+    {% for error in grammar_html_errors %}
+    <li>{{ error["error_name"] }}</li>
+    <li class="hide-bullet">
       {{ error["sentence"][:error["start"]] }}<b>{{ error["sentence"][error["start"]:error["end"]] }}</b>{{ error["sentence"][error["end"]:] }}
     </li>
     <li class="hide-bullet">Replacement: <b>{{ error["replacement"] }}</b></li>
@@ -20,7 +20,7 @@
   </ul>
   <h3>Spelling Errors:</h3>
   <ul>
-    {% for error in html_spelling_errors %}
+    {% for error in spelling_html_errors %}
     <li>
       {{ error["sentence"][:error["start"]] }}<b>{{ error["sentence"][error["start"]:error["end"]] }}</b>{{ error["sentence"][error["end"]:] }}
     </li>
