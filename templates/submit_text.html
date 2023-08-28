@@ -8,15 +8,16 @@
         <div>
           {% if form.text.errors %}
             {% for error in form.text.errors %}
-            {# TODO change class ? #}
               <span class="text-danger">
             {{ error }}
           </span>
             {% endfor %}
           {% endif %}
-          {{ form.text(placeholder="Add some text!", rows="3") }}
+          <h1>Submit New Text</h1>
+          <h3>Add some text that you would like to be checked for grammar and spelling errors. Next, review your submission and discover your areas for improvement.</h3>
+          {{ form.text(placeholder="Your text here", rows="3", class="submit-text-field") }}
         </div>
-        <button>Add my message!</button>
+        <button class="submit-text">Submit text</button>
       </form>
     </div>
   </div>

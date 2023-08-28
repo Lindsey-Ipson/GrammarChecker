@@ -4,14 +4,23 @@
   <h1>Let's review your text!</h1>
   <div class="submission original-submission">
     <h2>Your Submission</h2>
-    <p class="submission-p">{{ text.original_text }}</p>
-  </div>
-  <div class="submission edited-submission">
-    <h2>Edited Version</h2>
-    <p class="submission-p">{{ text.edited_text }}</p>
+    <p class="submission-p">{{ text }}</p>
   </div>
 
-  {% if grammar_html_errors %}
+  <div>
+    <p class="submission-no-errors">Congratulations! No errors were found in your text. Keep on submitting text to collect more errors and improve your writing skills over time!
+    </p>
+  </div>
+
+
+{# 
+
+  <div class="submission edited-submission">
+    <h2>Edited Version</h2>
+    <p>{{ text.edited_text }}</p>
+  </div>
+
+
   <h2>Grammar Errors Found:</h2>
   <ul class="ul-column">
     {% for error in grammar_html_errors %}
@@ -33,9 +42,7 @@
     </li>
     {% endfor %}
   </ul>
-  {% endif %}
 
-    {% if spelling_html_errors %}
   <h2>Spelling Errors Found:</h2>
   <ul class="ul-column">
     {% for error in spelling_html_errors %}
@@ -52,19 +59,7 @@
     <br />
     {% endfor %}
   </ul>
-  {% endif %}
-
-</div>
+</div> #}
 
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
 

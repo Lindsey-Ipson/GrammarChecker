@@ -1,13 +1,17 @@
 import os
 
-from flask import Flask, render_template, request, flash, redirect, session, g, url_for
+from flask import Flask, render_template, request, flash, redirect, session, g, url_for, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from errors import generate_api_response, isolate_errors_from_api_response, add_errors_to_db, apply_all_corrections, add_errors_to_db, add_text_to_db, get_error_type_counts, create_review_text_html_errors, create_show_all_html_errors
+from errors import generate_api_response, isolate_errors_from_api_response, add_errors_to_db, apply_all_corrections, add_errors_to_db, add_text_to_db, get_error_type_counts, create_review_text_html_errors, create_show_all_html_errors, create_graph_lists, create_errors_graph, parse_error_subcategory
 
 from forms import SignupForm, LoginForm, SubmitTextForm
-from models import db, connect_db, User, Text
+from models import db, connect_db, User, Grammar_Error, Spelling_Error
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 import pdb
 
@@ -21,7 +25,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
-# app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 app.config['DEBUG'] = True
 
@@ -108,7 +112,7 @@ def login():
         if user:
             do_login(user)
             flash(f"Hello, {user.username}!", "success")
-            return redirect("/subit_text")
+            return redirect("/submit_text")
 
         flash("Invalid credentials.", 'danger')
 
@@ -140,12 +144,52 @@ def submit_text():
         user = g.user
         
         text_to_submit = form.text.data
+        # text_to_submit = "Hi, how are you doing. I is doing well. I'm not have time."
+        # print('text_to_submit', text_to_submit)
 
         api_response = generate_api_response(text_to_submit)
+        # print('api_response', api_response)
+        # api_response = {
+        # "edits": [
+        #   {
+        #     "end": 22,
+        #     "error_type": "R:PUNCT",
+        #     "general_error_type": "Spelling",
+        #     "id": "4bb963a4-cc19-523e-9bb2-9e6b5a270bfc",
+        #     "replacement": "doing?",
+        #     "sentence": "Hi, how are you doing.",
+        #     "sentence_start": 0,
+        #     "start": 16
+        #   },
+        #   {
+        #     "end": 4,
+        #     "error_type": "R:VERB:SVA",
+        #     "general_error_type": "Spelling",
+        #     "id": "4bb963a4-cc19-523e-9bb2-9e6b5a270bfp",
+        #     "replacement": "am",
+        #     "sentence": "I is doing well.",
+        #     "sentence_start": 23,
+        #     "start": 2
+        #   },
+        #   {
+        #     "end": 7,
+        #     "error_type": "R:CONTR",
+        #     "general_error_type": "Spelling",
+        #     "id": "4bb963a4-cc19-523e-9bb2-9e6b5a270bfl",
+        #     "replacement": "I don't",
+        #     "sentence": "I'm not have time.",
+        #     "sentence_start": 40,
+        #     "start": 0
+        #   }
+        # ]
+        # }
 
         grammar_errors_from_api = isolate_errors_from_api_response(api_response, 'Grammar')
  
         spelling_errors_from_api = isolate_errors_from_api_response(api_response, 'Spelling')
+
+        if not grammar_errors_from_api and not spelling_errors_from_api:
+            return render_template('review_text_submission_no_errors.html', text=text_to_submit)
 
         corrected_text = apply_all_corrections(text_to_submit, grammar_errors_from_api, spelling_errors_from_api)
 
@@ -153,13 +197,11 @@ def submit_text():
 
         add_errors_to_db(grammar_errors_from_api, spelling_errors_from_api, user.id, new_text.id)
 
-        grammar_html_errors = create_review_text_html_errors(grammar_errors_from_api, 'grammar')
-        spelling_html_errors = create_review_text_html_errors(spelling_errors_from_api, 'spelling')
+        grammar_html_errors = create_review_text_html_errors(grammar_errors_from_api, 'Grammar')
+        spelling_html_errors = create_review_text_html_errors(spelling_errors_from_api, 'Spelling')
 
         db.session.add(new_text)
         db.session.commit()
-
-        flash("Text submitted successfully!", "success")
 
         return render_template('review_text_submission.html', text=new_text, grammar_html_errors=grammar_html_errors, spelling_html_errors=spelling_html_errors) 
 
@@ -177,7 +219,23 @@ def show_all_grammar_errors():
 
     error_type_counts = get_error_type_counts(user.id, 'Grammar')
 
-    html_errors = create_show_all_html_errors(error_type_counts, 3, 'Grammar')
+    if not error_type_counts:
+        flash("You don't have any grammar errors yet! Keep submitting text to have your grammar errors collected.", "no-errors")
+        return redirect("/submit_text")
+
+    error_types, error_counts = create_graph_lists(error_type_counts, 'Grammar')
+
+    create_errors_graph(error_types, error_counts, 'Grammar')
+
+    html_errors = create_show_all_html_errors(error_type_counts, user.id, 'Grammar')
+
+    from errors import serialize_grammar_error
+
+    all_serialized_errors = []
+    for grammar_error in html_errors:
+        serialized_errors = [serialize_grammar_error(error) for error in grammar_error["errors"]]
+        grammar_error["errors"] = serialized_errors
+        all_serialized_errors.append(grammar_error)
 
     return render_template('all_grammar_errors.html', all_grammar_errors=html_errors)
 
@@ -193,11 +251,59 @@ def show_all_spelling_errors():
 
     error_type_counts = get_error_type_counts(user.id, 'Spelling')
 
-    html_errors = create_show_all_html_errors(error_type_counts, 3, 'Spelling')
+    if not error_type_counts:
+        flash("You don't have any spelling errors yet! Keep submitting text to have your spelling errors collected.", "no-errors")
+        return redirect("/submit_text")
+
+
+    error_types, error_counts = create_graph_lists(error_type_counts, 'Spelling')
+
+    create_errors_graph(error_types, error_counts, 'Spelling')
+
+    html_errors = create_show_all_html_errors(error_type_counts, user.id, 'Spelling')
 
     return render_template('all_spelling_errors.html', all_spelling_errors=html_errors)
 
 
+@app.route('/get_more_errors', methods=['GET'])
+def get_more_errors():
 
+    general_error_type = request.args.get('general_error_type')
+    error_type = request.args.get('error_type')
+    page = request.args.get('page')
+
+    errors_per_page = 10
+
+    offset = (int(page) - 1) * errors_per_page
+
+    if general_error_type == 'Grammar':
+        errors = Grammar_Error.query.filter_by(error_type=error_type).offset(offset).limit(errors_per_page).all()
+    elif general_error_type == 'Spelling':
+        errors = Spelling_Error.query.filter_by(replacement=error_type).offset(offset).limit(errors_per_page).all()
+    else:
+
+        return jsonify({"errors": [], "has_more": False})
+
+    error_list = []
+    for error in errors:
+        error_dict = {
+            "start": error.start,
+            "end": error.end,
+            "replacement": error.replacement,
+            "sentence": error.sentence
+        }
+        if general_error_type == 'Grammar':
+            error_dict["error_name"] = parse_error_subcategory(error.error_type)
+
+        error_list.append(error_dict)
+
+    has_more = len(error_list) == errors_per_page
+
+    response_data = {
+        "errors": error_list,
+        "has_more": has_more
+    }
+
+    return jsonify(response_data)
 
 

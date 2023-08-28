@@ -1,26 +1,87 @@
 {% extends 'base.html' %} 
-
 {% block content %}
 
 <h1>Let's review your spelling errors</h1>
 
-<ul>
-  {% for error_type in all_spelling_errors %}
-  {% if error_type.count == 1 %}
-  <li>{{error_type.error_type}}, {{error_type.count}} count</li>
-  {% else %}
-   <li>{{error_type.error_type}}, {{error_type.count}} counts</li>
-  {% endif %}
-    <ul>
-      {% for error in error_type.errors %}
-      <li>error id: {{ error.id }}</li>
-      <li>error user_id: {{ error.user_id }}</li>
-      <li>{{ error.sentence[:error.start] }}<b>{{ error.sentence[error.start:error.end] }}</b>{{ error.sentence[error.end:] }}
+<img src="{{ url_for('static', filename='spelling_errors_plot.png') }}" alt="Spelling Errors Plot">
+
+{% set maxErrorsToShow = 10 %}
+
+{% for error_type in all_spelling_errors %}
+  {% set errorList = error_type.errors %}
+  {% set totalErrors = errorList|length %}
+
+  {% if totalErrors > 0 %}
+    {% if error_type.count == 1 %}
+      <h3 class="error-heading"><span class="error-type">{{ error_type.error_type }}</span><span class="error-count"> <span class="line-divider">│</span> {{ error_type.count }} count</span> </h3>
+    {% else %}
+      <h3 class="error-heading"><span class="error-type">{{ error_type.error_type }}</span><span class="error-count"> <span class="line-divider">│</span> {{ error_type.count }} counts</span> </h3>
+    {% endif %}
+    <ul class="ul-column" id="{{ error_type.error_type }}-error-list">
+      {% for error in errorList[0:maxErrorsToShow] %}
+        <li class="li-column">{{ error.sentence[:error.start] }}<b>{{ error.sentence[error.start:error.end] }}</b>{{ error.sentence[error.end:] }} <span class="arrow-divider">→</span>
+        {% if error.replacement %}
+          <b>{{ error.replacement }}</b>
+        {% else %}
+          <span class="remove-text">remove bolded text</span>
+        {% endif %}
+        </li>
       {% endfor %}
     </ul>
-  {% endfor %}
-</ul>
+    {% if totalErrors > maxErrorsToShow %}
+      <div class="pagination">
+        <button class="load-more-button" data-error-type="{{ error_type.error_type }}" data-page="2" data-general-error_type="Spelling">Load More</button>
+      </div>
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const loadMoreButtons = document.querySelectorAll(".load-more-button");
+
+  loadMoreButtons.forEach((button) => {
+    button.addEventListener("click", function () {
+      const errorType = button.getAttribute("data-error-type");
+      console.log('errorType' + errorType);
+      const nextPage = parseInt(button.getAttribute("data-page"));
+      const generalErrorType = button.getAttribute("data-general-error_type");
+      const errorListContainer = document.getElementById(`${errorType}-error-list`);
+
+      fetch(`/get_more_errors?general_error_type=Spelling&error_type=${errorType}&page=${nextPage}`)
+        .then((response) => response.json())
+        .then((data) => {
+          const newErrorList = document.createElement("ul");
+          newErrorList.classList.add("ul-column");
+
+          data.errors.forEach((error) => {
+            const listItem = document.createElement("li");
+            listItem.classList.add("li-column");
+            listItem.innerHTML = `${error.sentence.slice(0, error.start)}<b>${error.sentence.slice(
+              error.start,
+              error.end
+            )}</b>${error.sentence.slice(error.end)} <span class="arrow-divider">→</span> ${
+              error.replacement ? `<b>${error.replacement}</b>` : '<span class="remove-text">remove bolded text</span>'
+            }`;
+            errorListContainer.appendChild(listItem);
+          });
+
+          if (!data.has_more) {
+            button.style.display = "none";
+          } else {
+            button.setAttribute("data-page", nextPage + 1);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching more errors:", error);
+        });
+    });
+  });
+});
+</script>
+
 {% endblock %}
+
 
 
 

@@ -4,13 +4,16 @@
 
 <div>
   <h2>Sign up to start improving your grammar and spelling skills today!</h2>
-  <form method="POST">
+  <form method="POST" class="account-form">
     {{ form.hidden_tag() }}
     {% for field in form if field.widget.input_type != 'hidden' %}
       {% for error in field.errors %}
         <span class="danger">{{ error }}</span>
       {% endfor %}
-      {{ field(placeholder=field.label.text, class="form-field") }}
+      <div class="account-label-input">
+      {{  field.label }}
+      {{ field(class="account-input") }}
+      </div>
     {% endfor %}
     <button>Sign me up!</button>
   </form>

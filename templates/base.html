@@ -6,35 +6,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %} {% endblock %}</title>
     <link rel="stylesheet" href="/static/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Special+Elite&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
   </head>
   <body>
     <nav>
-      <a class="navbar-brand" href="/////">TODO NAME</a>
+      <a class="navbar-brand" href="/////">📑 GrammarChecker </a>
       <ul class="navbar-nav">
         {% if not g.user %}
-          <li><a href="/signup">Sign up</a></li>
-          <li><a href="/login">Log in</a></li>
+        <li><a href="/signup">Sign up</a></li>
+        <li><a href="/login">Log in</a></li>
         {% else %}
-          <li><a href="/submit_text">Submit new text</a></li>
-          <li><a href="/show_all_grammar_errors">Grammar</a></li>
-          <li><a href="/show_all_spelling_errors">Spelling</a></li>
-          <li><a href="/logout">Log out</a></li>
+        <li><a href="/submit_text">Submit new text</a></li>
+        <li><a href="/show_all_grammar_errors">Grammar</a></li>
+        <li><a href="/show_all_spelling_errors">Spelling</a></li>
+        <li><a href="/logout">Log out</a></li>
         {% endif %}
       </ul>
     </nav>
 
-    <div class="container">
+    <div class="messages">
       {% for category, message in get_flashed_messages(with_categories=True) %}
       <div class="alert alert-{{ category }}">{{ message }}</div>
       {% endfor %} {% block content %} {% endblock %}
     </div>
 
-    {# OR: #} {#
-    <div class="flash-messages">
-      {% for msg in get_flashed_messages() %}
-      <p class="msg">{{msg}}</p>
-      {% endfor %}
-    </div>
-    #} {# {% block content % {% endblock %}} #}
   </body>
 </html>

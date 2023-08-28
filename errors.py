@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 from flask import session, g
 from sqlalchemy import func, desc
+import matplotlib.pyplot as plt
 
 from models import Grammar_Error, Spelling_Error, Text, db
 
@@ -201,7 +202,7 @@ def create_review_text_html_errors(error_list, general_error_type):
             "replacement": replacement,
         }
 
-        if general_error_type == "grammar":
+        if general_error_type == "Grammar":
             new_error_object["error_name"] = parse_error_subcategory(error["error_type"])       
 
         html_errors_list.append(new_error_object)
@@ -222,5 +223,74 @@ def create_show_all_html_errors(error_types_and_counts, user_id, general_error_t
         show_all_errors_objects.append(error_type)
 
     return show_all_errors_objects
+
+
+# GRAPH FUNCTIONS
+# -------------------------------------------------------------------------
+
+def create_graph_lists(error_type_counts, general_error_type):
+    error_types = []
+    error_counts = []
+
+    total_counts = sum([error['count'] for error in error_type_counts])
+
+    for error in error_type_counts:
+        if general_error_type == "Grammar":
+            error_types.append(parse_error_subcategory(error['error_type']))
+        else:
+            error_types.append(error['error_type'])
+        error_counts.append(round(error['count'] / total_counts * 100, 1))
+
+    return error_types, error_counts
+
+
+import matplotlib.pyplot as plt
+
+def create_errors_graph(error_types, error_counts, general_error_type):
+    plt.figure()
+
+    bars = plt.barh(error_types, error_counts, color="orangered")
+
+    plt.rcParams.update({
+        'xtick.color': 'purple',
+        'ytick.color': 'purple',
+        'axes.edgecolor': '#091f91',
+    })
+
+    if general_error_type == "Grammar":
+        title = "Your Grammar Errors"
+        ylabel = "Error Types"
+        save_filename = 'static/grammar_errors_plot.png'
+    else:
+        title = "Your Spelling Errors"
+        ylabel = "Misspelled Words/Phrases"
+        save_filename = 'static/spelling_errors_plot.png'
+
+    for bar in bars:
+        plt.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2, f'{bar.get_width()}%', ha='left', va='center', color="purple")
+        bar.set_color("orangered")
+
+    plt.xlabel("Percentage", color="darkblue", fontsize=12)
+    plt.title(title, color="darkblue")
+    plt.ylabel(ylabel, color="darkblue", fontsize=12)
+
+    plt.savefig(save_filename, bbox_inches='tight')
+
+    return "Success"
+
+
+def serialize_grammar_error(error):
+    return {
+        "id": error.id,
+        "user": error.user_id,
+        "error_type": error.error_type,
+        "replacement": error.replacement,
+        "sentence": error.sentence,
+        "start": error.start,
+        "end": error.end,
+        "timestamp": error.timestamp
+        # Add other relevant fields here
+    }
+
 
 
