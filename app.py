@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, flash, redirect, session, g, 
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from errors import generate_api_response, isolate_errors_from_api_response, add_errors_to_db, apply_all_corrections, add_errors_to_db, add_text_to_db, get_error_type_counts, create_review_text_html_errors, create_show_all_html_errors, create_graph_lists, create_errors_graph, parse_error_subcategory
+from errors import generate_api_response, isolate_errors_from_api_response, add_errors_to_db, apply_all_corrections, add_errors_to_db, add_text_to_db, get_error_type_counts, create_review_text_html_errors, create_show_all_html_errors, create_graph_lists, create_errors_graph, parse_error_subcategory, serialize_grammar_error
 
 from forms import SignupForm, LoginForm, SubmitTextForm
 from models import db, connect_db, User, Grammar_Error, Spelling_Error
@@ -72,10 +72,42 @@ def redirect_from_root():
         return redirect('/submit_text')
 
 
+# @app.route('/signup', methods=["GET", "POST"])
+# def signup():
+
+#     form = SignupForm()
+
+#     if form.is_submitted() and form.validate():
+#         # try:
+#         user = User.signup(
+#                 username=form.username.data,
+#                 password=form.password.data,
+#                 email=form.email.data
+#             )
+#         db.session.add(user)
+#         db.session.commit()
+
+#         # except IntegrityError:
+#         #     flash("Username already taken", 'danger')
+#         #     return render_template('signup.html', form=form)
+
+#         do_login(user)
+
+#         return redirect("/submit_text")
+
+#     else:
+#         return render_template('signup.html', form=form)
+    
+
+
+from sqlalchemy.exc import IntegrityError
+
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
-
     form = SignupForm()
+    username_taken = False
+    email_taken = False
+    taken_attribute = ""
 
     if form.is_submitted() and form.validate():
         try:
@@ -86,17 +118,23 @@ def signup():
             )
             db.session.add(user)
             db.session.commit()
-
-        except IntegrityError:
-            flash("Username already taken", 'danger')
+        except IntegrityError as e:
+            db.session.rollback()
+            if 'duplicate key value violates unique constraint "users_username_key"' in str(e):
+                username_taken = True
+                taken_attribute = "Username"
+            elif 'duplicate key value violates unique constraint "users_email_key"' in str(e):
+                email_taken = True
+                taken_attribute = "Email"
+            flash(f"{taken_attribute} already taken", 'danger')
             return render_template('signup.html', form=form)
 
-        do_login(user)
+        if not username_taken and not email_taken:
+            do_login(user)
+            return redirect("/submit_text")
 
-        return redirect("/submit_text")
+    return render_template('signup.html', form=form, username_taken=username_taken, email_taken=email_taken)
 
-    else:
-        return render_template('signup.html', form=form)
 
 
 @app.route('/login', methods=["GET", "POST"])
@@ -145,10 +183,8 @@ def submit_text():
         
         text_to_submit = form.text.data
         # text_to_submit = "Hi, how are you doing. I is doing well. I'm not have time."
-        # print('text_to_submit', text_to_submit)
 
         api_response = generate_api_response(text_to_submit)
-        # print('api_response', api_response)
         # api_response = {
         # "edits": [
         #   {
@@ -229,7 +265,7 @@ def show_all_grammar_errors():
 
     html_errors = create_show_all_html_errors(error_type_counts, user.id, 'Grammar')
 
-    from errors import serialize_grammar_error
+    # from errors import serialize_grammar_error
 
     all_serialized_errors = []
     for grammar_error in html_errors:

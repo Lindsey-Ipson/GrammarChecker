@@ -22,16 +22,21 @@ class User(db.Model):
         unique=True
     )
 
+    email = db.Column(
+        db.Text,
+        nullable=False
+    )
+
     password = db.Column(
         db.Text,
         nullable=False,
     )
 
-    email = db.Column(
-        db.Text,
-        nullable=False,
-        unique=True,
-    )
+    # texts = db.relationship('Text', backref='user', lazy='subquery')
+
+    # grammar_errors = db.relationship('Grammar_Error', backref='user', lazy='subquery')
+
+    # spelling_errors = db.relationship('Spelling_Error', backref='user', lazy='subquery')
 
     def __repr__(self):
         return f"<User id: {self.id}, username: {self.username}>"
