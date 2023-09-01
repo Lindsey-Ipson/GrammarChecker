@@ -151,8 +151,8 @@ nav {
   background-color: rgb(0, 85, 128);
 } */
 
-.account-button {
-}
+/* .account-button {
+} */
 
 /* Submit text page styles */
 
@@ -186,6 +186,28 @@ button.submit-text:hover {
   border: 1px solid #ccc;
   border-radius: px;
   font-family: 'IBM Plex Serif', serif;
+}
+
+.warning-h1 {
+  color: red;
+}
+
+.over-limit-container {
+  margin: auto;
+  max-width: 500px;
+  text-align: left;
+  /* margin-bottom: 20px; */
+  /* border: #0d2997 1px solid; */
+  /* border-radius: 7px; */
+  /* padding: 3px; */
+}
+
+.over-limit-link {
+  color: #4594e2;
+}
+
+.over-limit-link:hover {
+  color: rgb(166, 0, 255);
 }
 
 /* Review submission styles */

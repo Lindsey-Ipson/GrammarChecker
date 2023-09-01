@@ -20,5 +20,6 @@ seed_texts = [
 
 "To whom it may concerns, I have not yet recieved the product I had ordered last week. Please let me know if it’s on it’s way.",
 
-"Hello, I just had wanted to let you know that the report’s on it’s way."
+"Hello, I just had wanted to let you know that the report’s on it’s way.",
+
 ]

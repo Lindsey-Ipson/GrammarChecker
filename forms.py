@@ -18,7 +18,7 @@ class LoginForm(FlaskForm):
 
 class SubmitTextForm(FlaskForm):
 
-    text = TextAreaField('Text', validators=[DataRequired()])
+    text = TextAreaField('Text', validators=[DataRequired(), Length(min=5, max=1200)])
     
 
 

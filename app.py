@@ -35,7 +35,7 @@ connect_db(app)
 
 # !!! When testing, comment the following lines
 with app.app_context():  
-    db.drop_all()
+    # db.drop_all()
     db.create_all()
     db.session.commit()
 
@@ -171,9 +171,15 @@ def submit_text():
         flash("Access unauthorized.", "danger")
         return redirect("/signup")
     
+    user = g.user
+    
+    if len(user.texts) >= 25:
+        return render_template('over_text_limit.html')
+
+    
     if form.is_submitted() and form.validate():
 
-        user = g.user
+        # user = g.user
         
         text_to_submit = form.text.data
         print('text_to_submit', text_to_submit)
