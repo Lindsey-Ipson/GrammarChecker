@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, flash, redirect, session, g, 
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from errors import generate_api_response, isolate_errors_from_api_response, add_errors_to_db, apply_all_corrections, add_errors_to_db, add_text_to_db, get_error_type_counts, create_review_text_html_errors, create_show_all_html_errors, create_graph_lists, create_errors_graph, parse_error_subcategory, serialize_grammar_error
+from errors import generate_api_response, isolate_errors_from_api_response, add_errors_to_db, apply_all_corrections, add_errors_to_db, add_text_to_db, get_error_type_counts, create_review_text_html_errors, create_show_all_html_errors, create_graph_lists, create_errors_graph, parse_error_subcategory, serialize_grammar_error, add_tester_texts_to_db
 
 from forms import SignupForm, LoginForm, SubmitTextForm
 from models import db, connect_db, User, Grammar_Error, Spelling_Error
@@ -33,8 +33,9 @@ toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 
-with app.app_context():
-    # db.drop_all()
+# !!! When testing, comment the following lines
+with app.app_context():  
+    db.drop_all()
     db.create_all()
     db.session.commit()
 
@@ -72,36 +73,6 @@ def redirect_from_root():
         return redirect('/submit_text')
 
 
-# @app.route('/signup', methods=["GET", "POST"])
-# def signup():
-
-#     form = SignupForm()
-
-#     if form.is_submitted() and form.validate():
-#         # try:
-#         user = User.signup(
-#                 username=form.username.data,
-#                 password=form.password.data,
-#                 email=form.email.data
-#             )
-#         db.session.add(user)
-#         db.session.commit()
-
-#         # except IntegrityError:
-#         #     flash("Username already taken", 'danger')
-#         #     return render_template('signup.html', form=form)
-
-#         do_login(user)
-
-#         return redirect("/submit_text")
-
-#     else:
-#         return render_template('signup.html', form=form)
-    
-
-
-from sqlalchemy.exc import IntegrityError
-
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     form = SignupForm()
@@ -118,6 +89,7 @@ def signup():
             )
             db.session.add(user)
             db.session.commit()
+
         except IntegrityError as e:
             db.session.rollback()
             if 'duplicate key value violates unique constraint "users_username_key"' in str(e):
@@ -126,15 +98,37 @@ def signup():
             elif 'duplicate key value violates unique constraint "users_email_key"' in str(e):
                 email_taken = True
                 taken_attribute = "Email"
+
             flash(f"{taken_attribute} already taken", 'danger')
             return render_template('signup.html', form=form)
 
         if not username_taken and not email_taken:
             do_login(user)
+
+            if user.username.endswith('_tester'):
+                return redirect('/set_up_tester')
+
             return redirect("/submit_text")
 
     return render_template('signup.html', form=form, username_taken=username_taken, email_taken=email_taken)
 
+
+@app.route('/set_up_tester', methods=['GET', 'POST'])
+def set_up_tester():
+
+    print('starting set up tester')
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/signup")
+    
+    user = g.user
+
+    print('set up tester user', user)
+
+    add_tester_texts_to_db(user)
+
+    return redirect('submit_text')
 
 
 @app.route('/login', methods=["GET", "POST"])
@@ -182,9 +176,11 @@ def submit_text():
         user = g.user
         
         text_to_submit = form.text.data
+        print('text_to_submit', text_to_submit)
         # text_to_submit = "Hi, how are you doing. I is doing well. I'm not have time."
 
         api_response = generate_api_response(text_to_submit)
+        print('API_RESPONSE =>', api_response)
         # api_response = {
         # "edits": [
         #   {
@@ -265,8 +261,6 @@ def show_all_grammar_errors():
 
     html_errors = create_show_all_html_errors(error_type_counts, user.id, 'Grammar')
 
-    # from errors import serialize_grammar_error
-
     all_serialized_errors = []
     for grammar_error in html_errors:
         serialized_errors = [serialize_grammar_error(error) for error in grammar_error["errors"]]
@@ -291,7 +285,6 @@ def show_all_spelling_errors():
         flash("You don't have any spelling errors yet! Keep submitting text to have your spelling errors collected.", "no-errors")
         return redirect("/submit_text")
 
-
     error_types, error_counts = create_graph_lists(error_type_counts, 'Spelling')
 
     create_errors_graph(error_types, error_counts, 'Spelling')
@@ -308,7 +301,7 @@ def get_more_errors():
     error_type = request.args.get('error_type')
     page = request.args.get('page')
 
-    errors_per_page = 10
+    errors_per_page = 6
 
     offset = (int(page) - 1) * errors_per_page
 

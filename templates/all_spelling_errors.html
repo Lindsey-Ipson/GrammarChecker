@@ -5,7 +5,7 @@
 
 <img src="{{ url_for('static', filename='spelling_errors_plot.png') }}" alt="Spelling Errors Plot">
 
-{% set maxErrorsToShow = 10 %}
+{% set maxErrorsToShow = 6 %}
 
 {% for error_type in all_spelling_errors %}
   {% set errorList = error_type.errors %}

@@ -32,11 +32,13 @@ class User(db.Model):
         nullable=False,
     )
 
-    # texts = db.relationship('Text', backref='user', lazy='subquery')
 
-    # grammar_errors = db.relationship('Grammar_Error', backref='user', lazy='subquery')
+# TODO: delete if I only reference in first test of user model
+    texts = db.relationship('Text', backref='user', lazy='subquery')
 
-    # spelling_errors = db.relationship('Spelling_Error', backref='user', lazy='subquery')
+    grammar_errors = db.relationship('Grammar_Error', backref='user', lazy='subquery')
+
+    spelling_errors = db.relationship('Spelling_Error', backref='user', lazy='subquery')
 
     def __repr__(self):
         return f"<User id: {self.id}, username: {self.username}>"

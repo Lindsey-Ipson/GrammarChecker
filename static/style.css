@@ -23,11 +23,16 @@ ul {
 
 button {
   color: #fff;
+  background-color: #4800ff;
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
+}
+
+button:hover {
+  background-color: #006ef5;
 }
 
 /* Messages */
@@ -276,7 +281,7 @@ button.submit-text:hover {
   background-color: rgb(166, 0, 255);
 }
 
-button:hover {
+.load-more-button:hover {
   background-color: rgb(204, 0, 255);
 }
 

@@ -8,6 +8,7 @@ from sqlalchemy import func, desc
 import matplotlib.pyplot as plt
 
 from models import Grammar_Error, Spelling_Error, Text, db
+from seed_tester import seed_texts
 
 API_key = os.environ.get("SAPLING_API_KEY") # to write in local machine: export SAPLING_API_KEY=value
     
@@ -294,3 +295,54 @@ def serialize_grammar_error(error):
 
 
 
+
+
+
+def add_tester_text_to_db(user):
+
+    from seed_tester import seed_texts, seed_grammar_errors, seed_spelling_errors
+
+    for text in seed_texts:
+        new_text = Text(**text)
+        new_text.user_id = user.id
+        db.session.add(new_text)
+        print('TEXT =>', text)
+        print('NEW_TEXT =>', new_text)
+
+    for error in seed_grammar_errors:
+        new_error = Grammar_Error(**error)
+        new_error.user_id = user.id
+        db.session.add(new_error)
+        print('G ERROR =>', error)
+        print('NEW G ERROR =>', new_error)
+
+    for error in seed_spelling_errors:
+        new_error = Spelling_Error(**error)
+        new_error.user_id = user.id
+        db.session.add(new_error)
+        print('S ERROR =>', error)
+        print('NEW S ERROR =>', new_error)
+
+    db.session.commit()
+
+    return('completed add tester text to db')
+
+
+def add_tester_texts_to_db(user):
+    for seed_text in seed_texts:
+
+        api_response = generate_api_response(seed_text)
+        print('API_RESPONSE =>', api_response)
+
+        grammar_errors_from_api = isolate_errors_from_api_response(api_response, 'Grammar')
+ 
+        spelling_errors_from_api = isolate_errors_from_api_response(api_response, 'Spelling')
+
+        corrected_text = apply_all_corrections(seed_text, grammar_errors_from_api, spelling_errors_from_api)
+
+        new_text = add_text_to_db(user.id, seed_text, corrected_text)
+
+        add_errors_to_db(grammar_errors_from_api, spelling_errors_from_api, user.id, new_text.id)
+
+        # db.session.add(new_text)
+        db.session.commit()
