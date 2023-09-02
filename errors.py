@@ -108,7 +108,6 @@ def add_errors_to_db(grammar_errors_list, spelling_errors_list, user_id, text_ob
             db.session.add(new_spelling_error)
             db.session.commit()
 
-
 def add_text_to_db(user_id, text_to_submit, corrected_text):
 
     new_text = Text(

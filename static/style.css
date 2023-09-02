@@ -35,6 +35,34 @@ button:hover {
   background-color: #006ef5;
 }
 
+.in-text-link {
+  color: #4594e2;
+}
+
+.in-text-link:hover {
+  color: rgb(166, 0, 255);
+}
+
+.text-container {
+  margin: auto;
+  max-width: 700px;
+  text-align: left;
+}
+
+.text-container-wide {
+  margin: auto;
+  max-width: 900px;
+  text-align: left;
+}
+
+.important-note {
+  color: #ff5733;
+}
+
+.small-note {
+  font-size: .9rem;
+}
+
 /* Messages */
 
 .flashed-messages {
@@ -48,24 +76,30 @@ button:hover {
   margin-bottom: 20px;
 } */
 
+.alert {
+  font-style: italic;
+  font-size: 1.2rem;
+  margin-top: 15px;
+}
+
 .alert-success {
   color: green;
-  font-style: italic;
 }
 
 .alert-danger {
   color: red;
-  font-style: italic;
 }
 
 .alert-message {
   color: rgb(2, 192, 255);
-  font-style: italic;
 }
 
 .danger {
   color: red;
-  font-style: italic;
+}
+
+.centered {
+  text-align: center;
 }
 
 /* Navbar styles */
@@ -136,6 +170,7 @@ nav {
   max-height: 20px;
   color: #0d2997;
   background-color: rgba(110, 176, 252, 0.423);
+  background-color: rgba(110, 176, 252, 0.289);
 
   width: 100%;
   padding: 12px 20px;
@@ -154,6 +189,14 @@ nav {
 /* .account-button {
 } */
 
+
+/* Homepage styles */
+/* 
+margin: auto;
+max-width: 500px;
+text-align: left; */
+
+
 /* Submit text page styles */
 
 button.submit-text {
@@ -164,6 +207,7 @@ button.submit-text {
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
+  margin-top: 10px;
 }
 
 button.submit-text:hover {
@@ -192,7 +236,7 @@ button.submit-text:hover {
   color: red;
 }
 
-.over-limit-container {
+/* .over-limit-container {
   margin: auto;
   max-width: 500px;
   text-align: left;
@@ -200,15 +244,6 @@ button.submit-text:hover {
   /* border: #0d2997 1px solid; */
   /* border-radius: 7px; */
   /* padding: 3px; */
-}
-
-.over-limit-link {
-  color: #4594e2;
-}
-
-.over-limit-link:hover {
-  color: rgb(166, 0, 255);
-}
 
 /* Review submission styles */
 
@@ -241,13 +276,6 @@ button.submit-text:hover {
 }
 
 /* Show all grammar and spelling error pages styles */
-
-.alert-no-errors {
-  margin-top: 20px;
-  color: red;
-  font-style: italic;
-  font-size: 1.5rem;
-}
 
 .line-divider {
   font-size: 1.5rem;
@@ -312,6 +340,12 @@ button.submit-text:hover {
 @media screen and (min-width: 1500px) {
   .ul-column {
     margin: auto 300px auto 300px;
+  }
+
+  .text-container {
+    /* margin: auto; */
+    max-width: 800px;
+    /* text-align: left; */
   }
 }
 

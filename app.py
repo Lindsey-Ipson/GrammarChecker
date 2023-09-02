@@ -20,8 +20,10 @@ CURR_USER_KEY = ""
 app = Flask(__name__)
 
 # Get DB_URI from environ variable (useful for production/testing) or, if not set there, use development local db
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql://kksluwoo:k-o2ThSbwF-GIbqCJKw7iQ9hnSv0Xd7X@mahmud.db.elephantsql.com/kksluwoo'))
+# app.config['SQLALCHEMY_DATABASE_URI'] = (
+#     os.environ.get('DATABASE_URL', 'postgresql://kksluwoo:k-o2ThSbwF-GIbqCJKw7iQ9hnSv0Xd7X@mahmud.db.elephantsql.com/kksluwoo'))
+os.environ['DATABASE_URL'] = "postgresql:///capstone1-test"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
@@ -64,13 +66,17 @@ def do_logout():
         del session[CURR_USER_KEY]
 
 
-@app.route('/')
-def redirect_from_root():
+# @app.route('/')
+# def redirect_from_root():
 
-    if not g.user:
-        return redirect('/signup')
-    else:
-        return redirect('/submit_text')
+#     if not g.user:
+#         return redirect('/signup')
+#     else:
+#         return redirect('/submit_text')@app.route('/')
+@app.route('/')
+def show_homepage():
+
+    return render_template('homepage.html')
 
 
 @app.route('/signup', methods=["GET", "POST"])
@@ -91,7 +97,7 @@ def signup():
             db.session.commit()
 
         except IntegrityError as e:
-            db.session.rollback()
+            # db.session.rollback()
             if 'duplicate key value violates unique constraint "users_username_key"' in str(e):
                 username_taken = True
                 taken_attribute = "Username"
@@ -108,7 +114,9 @@ def signup():
             if user.username.endswith('_tester'):
                 return redirect('/set_up_tester')
 
-            return redirect("/submit_text")
+            # flash(f"Hello, {user.username}!", "success")
+            # return redirect("/submit_text")
+            return render_template('new_user.html', username=user.username)
 
     return render_template('signup.html', form=form, username_taken=username_taken, email_taken=email_taken)
 
@@ -124,11 +132,21 @@ def set_up_tester():
     
     user = g.user
 
+    if not user.username.endswith('_tester'):
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    # TODO change to final seed text length
+    if len(user.texts) >= 15:
+        flash("You've already set up your tester account.", "danger")
+        return redirect("/submit_text")
+
     print('set up tester user', user)
 
     add_tester_texts_to_db(user)
 
-    return redirect('submit_text')
+    # return redirect('submit_text')
+    return render_template('new_tester.html', username=user.username)
 
 
 @app.route('/login', methods=["GET", "POST"])
@@ -143,7 +161,7 @@ def login():
 
         if user:
             do_login(user)
-            flash(f"Hello, {user.username}!", "success")
+            flash(f"Welcome back, {user.username}!", "success")
             return redirect("/submit_text")
 
         flash("Invalid credentials.", 'danger')
@@ -176,7 +194,6 @@ def submit_text():
     if len(user.texts) >= 25:
         return render_template('over_text_limit.html')
 
-    
     if form.is_submitted() and form.validate():
 
         # user = g.user
@@ -258,7 +275,7 @@ def show_all_grammar_errors():
     error_type_counts = get_error_type_counts(user.id, 'Grammar')
 
     if not error_type_counts:
-        flash("You don't have any grammar errors yet! Keep submitting text to have your grammar errors collected.", "no-errors")
+        flash("You don't have any grammar errors yet! Keep submitting text to have your grammar errors collected.", "danger")
         return redirect("/submit_text")
 
     error_types, error_counts = create_graph_lists(error_type_counts, 'Grammar')
@@ -288,7 +305,7 @@ def show_all_spelling_errors():
     error_type_counts = get_error_type_counts(user.id, 'Spelling')
 
     if not error_type_counts:
-        flash("You don't have any spelling errors yet! Keep submitting text to have your spelling errors collected.", "no-errors")
+        flash("You don't have any spelling errors yet! Keep submitting text to have your spelling errors collected.", "danger")
         return redirect("/submit_text")
 
     error_types, error_counts = create_graph_lists(error_type_counts, 'Spelling')

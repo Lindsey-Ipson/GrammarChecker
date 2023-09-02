@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<h1>Welcome to GrammarChecker!</h1>
+
+<div class="text-container">
+  <p>Hello {{ username }}, and thanks for joining GrammarChecker!</p>
+  
+  <p>To get started, click <a class="in-text-link" href="/submit_text">"Submit new text"</a> in the navigation bar and begin submitting any short-form writings you’d like to be edited/reviewed. These can include emails, text messages, memos, invitations, short business documents, and more. Once submitted, if any grammar or spelling errors are found, an edited version of your text will be returned and you will be able to review each error. As you submit more writings, all of your errors will be collected and available for your review. When logged in, you can simply click on the <a class="in-text-link" href="/show_all_grammar_errors">Grammar</a> or <a class="in-text-link" href="/show_all_spelling_errors">Spelling</a> tab for a graphical overview of your common errors and examples of where each error was found in your past writings.</p>
+
+  <p>This site was designed to help you improve your writing abilities over time so be sure to periodically submit some writing and review your error collections!</p>
+
+</div>
+
+{% endblock %}
