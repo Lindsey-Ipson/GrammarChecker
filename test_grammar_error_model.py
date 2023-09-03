@@ -37,7 +37,14 @@ class GrammarModelTestCase(TestCase):
 
             self.setup_text_id = setup_text.id
 
-            grammar_error = Grammar_Error(user_id = self.setup_user_id, text_id = setup_text.id, error_type = 'R:VERB:SVA', start = 5, end = 8, replacement = 'is', sentence = 'Here are an example.')
+            grammar_error = Grammar_Error(
+                user_id = self.setup_user_id, 
+                text_id = setup_text.id, 
+                error_type = 'R:VERB:SVA', 
+                start = 5, 
+                end = 8, 
+                replacement = 'is', 
+                sentence = 'Here are an example.')
 
             db.session.add(grammar_error)
             db.session.commit()

@@ -85,7 +85,7 @@ def signup():
             db.session.add(user)
             db.session.commit()
 
-        except IntegrityError as e:
+        except Exception as e:
             if 'duplicate key value violates unique constraint "users_username_key"' in str(e):
                 username_taken = True
                 taken_attribute = "Username"
@@ -94,6 +94,7 @@ def signup():
                 taken_attribute = "Email"
 
             flash(f"{taken_attribute} already taken", 'danger')
+            db.session.rollback()
             return render_template('signup.html', form=form)
 
         if not username_taken and not email_taken:
@@ -196,6 +197,8 @@ def submit_text():
         return redirect("/signup")
     
     user = g.user
+
+    print('USER', user)
     
     if len(user.texts) >= 25:
         return render_template('over_text_limit.html')
@@ -207,6 +210,10 @@ def submit_text():
         text_to_submit = form.text.data
         # print('text_to_submit', text_to_submit)
         # text_to_submit = "Hi, how are you doing. I is doing well. I'm not have time."
+
+        if len(text_to_submit) > 1200:
+            flash("Text must be less than 1200 characters.", "danger")
+            return redirect('/submit_text')
 
         api_response = generate_api_response(text_to_submit)
         # print('API_RESPONSE =>', api_response)
@@ -332,6 +339,10 @@ def get_more_errors():
 
     errors_per_page = 6
 
+    print('page', page)
+    print('general_error_type', general_error_type)
+    print('error_type', error_type) 
+
     offset = (int(page) - 1) * errors_per_page
 
     if general_error_type == 'Grammar':
@@ -341,6 +352,8 @@ def get_more_errors():
     else:
 
         return jsonify({"errors": [], "has_more": False})
+    
+    print('errors', errors)
 
     error_list = []
     for error in errors:
@@ -361,6 +374,8 @@ def get_more_errors():
         "errors": error_list,
         "has_more": has_more
     }
+
+    print('jsonify(response_data)', jsonify(response_data))
 
     return jsonify(response_data)
 

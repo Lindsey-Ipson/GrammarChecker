@@ -2,12 +2,10 @@
 
 body {
   font-family: 'DM Sans', sans-serif;
-  /* font-weight: 300; */
   align-items: center;
   text-align: center;
-  background-color: #ffffff;
-  color: #0d2997;
-
+  background-color: rgb(255, 255, 255);
+  color: rgb(13, 41, 151);
   width: 100%;
   height: 100%;
   padding-top: 3em;
@@ -22,8 +20,8 @@ ul {
 }
 
 button {
-  color: #fff;
-  background-color: #4800ff;
+  color: rgb(255, 255, 255);
+  background-color: rgb(72, 0, 255);
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
@@ -32,11 +30,11 @@ button {
 }
 
 button:hover {
-  background-color: #006ef5;
+  background-color: rgb(0, 110, 245);
 }
 
 .in-text-link {
-  color: #4594e2;
+  color: rgb(69, 148, 226);
 }
 
 .in-text-link:hover {
@@ -56,7 +54,7 @@ button:hover {
 }
 
 .important-note {
-  color: #ff5733;
+  color: rgb(255, 87, 51);
 }
 
 .small-note {
@@ -69,13 +67,6 @@ button:hover {
   padding: 20px;
 }
 
-/* .alert {
-  border-radius: 7px;
-  padding: 8px;
-  margin: 10px;
-  margin-bottom: 20px;
-} */
-
 .alert {
   font-style: italic;
   font-size: 1.2rem;
@@ -83,11 +74,11 @@ button:hover {
 }
 
 .alert-success {
-  color: green;
+  color: rgb(0, 128, 0)
 }
 
 .alert-danger {
-  color: red;
+  color: rgb(255, 0, 0);
 }
 
 .alert-message {
@@ -95,7 +86,7 @@ button:hover {
 }
 
 .danger {
-  color: red;
+  color: rgb(255, 0, 0);
 }
 
 .centered {
@@ -105,21 +96,19 @@ button:hover {
 /* Navbar styles */
 
 nav {
-  background-color: #141e46;
   color: white;
   padding: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-family: 'Special Elite', serif;
-
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: 3em;
   padding: 0 0.6em;
-  background: #fff;
+  background-color: rgb(255, 255, 255);
   box-shadow: 0 0 .8em rgba(170,170,170,.2);
   z-index: 10000;
   transition: all .3s;
@@ -129,12 +118,11 @@ nav {
 .navbar-brand {
   text-decoration: none;
   font-size: 24px;
-  color: #64aaf1;
-  color: #4594e2;
+  color: rgb(69, 148, 226);
 }
 
 .navbar-brand:hover {
-  color: #ff5733;
+  color: rgb(255, 87, 51)
 }
 
 .navbar-nav {
@@ -153,13 +141,13 @@ nav {
 
 .navbar-nav a {
   text-decoration: none;
-  color: #4594e2;
+  color: rgb(69, 148, 226);
   font-weight: bold;
   transition: color 0.3s ease;
 }
 
 .navbar-nav a:hover {
-  color: #ff5733;
+  color: rgb(255, 87, 51);
 }
 
 /* Signup/Login/Logout page styles */
@@ -172,7 +160,7 @@ nav {
 .account-input {
   max-width: 500px;
   max-height: 20px;
-  color: #0d2997;
+  color: rgb(13, 41, 151);
   background-color: rgba(110, 176, 252, 0.423);
   background-color: rgba(110, 176, 252, 0.289);
 
@@ -180,32 +168,16 @@ nav {
   padding: 12px 20px;
   margin: 8px 0;
   display: inline-block;
-  border: 1px solid #ccc;
+  border: 1px solid rgb(204, 204, 204);
   border-radius: 4px;
   box-sizing: border-box;
 }
 
-/* .account-input:focus {
-  color: rgb(255, 255, 255);
-  background-color: rgb(0, 85, 128);
-} */
-
-/* .account-button {
-} */
-
-
-/* Homepage styles */
-/* 
-margin: auto;
-max-width: 500px;
-text-align: left; */
-
-
 /* Submit text page styles */
 
 button.submit-text {
-  background-color: #4800ff;
-  color: #fff;
+  background-color: rgb(72, 0, 255);
+  color: rgb(255, 255, 255);
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
@@ -215,14 +187,14 @@ button.submit-text {
 }
 
 button.submit-text:hover {
-  background-color: #006ef5;
+  background-color: rgb(0, 110, 245);
 }
 
 .submit-text-field {
   width: 100%;
   padding: 10px;
   font-size: 16px;
-  border: 1px solid #ccc;
+  border: 1px solid rgb(204, 204, 204);
   border-radius: 4px;
 }
 
@@ -231,28 +203,19 @@ button.submit-text:hover {
   height: 300px;
   padding: 10px;
   font-size: 16px;
-  border: 1px solid #ccc;
+  border: 1px solid rgb(204, 204, 204);
   border-radius: px;
   font-family: 'IBM Plex Serif', serif;
 }
 
 .warning-h1 {
-  color: red;
+  color: rgb(255, 255, 255);
 }
-
-/* .over-limit-container {
-  margin: auto;
-  max-width: 500px;
-  text-align: left;
-  /* margin-bottom: 20px; */
-  /* border: #0d2997 1px solid; */
-  /* border-radius: 7px; */
-  /* padding: 3px; */
 
 /* Review submission styles */
 
 .submission-no-errors {
-  color: green;
+  color: rgb(0, 128, 0);
   font-style: italic;
   font-size: 1.2rem;
   padding-top: 15px;
@@ -264,7 +227,7 @@ button.submit-text:hover {
   padding: 3px;
   margin: auto 100px;
   margin-bottom: 20px;
-  border: #0d2997 1px solid;
+  border: rgb(13, 41, 151) 1px solid;
 }
 
 .submission-p {
@@ -311,8 +274,8 @@ button.submit-text:hover {
   padding: 0;
   margin: auto 100px auto 100px;
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Create two equal-width columns */
-  gap: 10px; /* Adjust the spacing between list items */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 
 .li-column {
@@ -323,8 +286,8 @@ button.submit-text:hover {
 .error-heading {
   align-items: center;
   text-align: center;
-  background-color: #4800ff;
-  color: white;
+  background-color: rgb(72, 0, 255);
+  color: rgb(255, 255, 255);
   padding: 10px;
   margin: 40px;
   border-radius: 5px;
@@ -347,9 +310,7 @@ button.submit-text:hover {
   }
 
   .text-container {
-    /* margin: auto; */
     max-width: 800px;
-    /* text-align: left; */
   }
 }
 
