@@ -18,7 +18,14 @@
   </head>
   <body>
     <nav>
-      <a class="navbar-brand" href="/">📑 GrammarChecker </a>
+      {% if not g.user %}
+        <a class="navbar-brand" href="/">📑 GrammarChecker</a>
+      {% elif g.user.username.endswith('_tester') %}
+        <a class="navbar-brand" href="new_tester">📑 GrammarChecker</a>
+      {% else %}
+        <a class="navbar-brand" href="/new_user">📑 GrammarChecker </a>
+      {% endif %}
+
       <ul class="navbar-nav">
         {% if not g.user %}
         <li><a href="/signup">Sign up</a></li>

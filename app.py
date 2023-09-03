@@ -19,11 +19,13 @@ CURR_USER_KEY = ""
 
 app = Flask(__name__)
 
+app.static_folder = 'static'
+
 # Get DB_URI from environ variable (useful for production/testing) or, if not set there, use development local db
-# app.config['SQLALCHEMY_DATABASE_URI'] = (
-#     os.environ.get('DATABASE_URL', 'postgresql://kksluwoo:k-o2ThSbwF-GIbqCJKw7iQ9hnSv0Xd7X@mahmud.db.elephantsql.com/kksluwoo'))
-os.environ['DATABASE_URL'] = "postgresql:///capstone1-test"
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    os.environ.get('DATABASE_URL', 'postgresql://kksluwoo:k-o2ThSbwF-GIbqCJKw7iQ9hnSv0Xd7X@mahmud.db.elephantsql.com/kksluwoo'))
+# os.environ['DATABASE_URL'] = "postgresql:///capstone1-test"
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
@@ -36,10 +38,10 @@ toolbar = DebugToolbarExtension(app)
 connect_db(app)
 
 # !!! When testing, comment the following lines
-with app.app_context():  
-    # db.drop_all()
-    db.create_all()
-    db.session.commit()
+# with app.app_context():  
+#     db.drop_all()
+#     db.create_all()
+#     db.session.commit()
 
 
 ##############################################################################
@@ -66,19 +68,6 @@ def do_logout():
         del session[CURR_USER_KEY]
 
 
-# @app.route('/')
-# def redirect_from_root():
-
-#     if not g.user:
-#         return redirect('/signup')
-#     else:
-#         return redirect('/submit_text')@app.route('/')
-@app.route('/')
-def show_homepage():
-
-    return render_template('homepage.html')
-
-
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     form = SignupForm()
@@ -97,7 +86,6 @@ def signup():
             db.session.commit()
 
         except IntegrityError as e:
-            # db.session.rollback()
             if 'duplicate key value violates unique constraint "users_username_key"' in str(e):
                 username_taken = True
                 taken_attribute = "Username"
@@ -114,8 +102,6 @@ def signup():
             if user.username.endswith('_tester'):
                 return redirect('/set_up_tester')
 
-            # flash(f"Hello, {user.username}!", "success")
-            # return redirect("/submit_text")
             return render_template('new_user.html', username=user.username)
 
     return render_template('signup.html', form=form, username_taken=username_taken, email_taken=email_taken)
@@ -123,8 +109,6 @@ def signup():
 
 @app.route('/set_up_tester', methods=['GET', 'POST'])
 def set_up_tester():
-
-    print('starting set up tester')
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -140,8 +124,6 @@ def set_up_tester():
     if len(user.texts) >= 15:
         flash("You've already set up your tester account.", "danger")
         return redirect("/submit_text")
-
-    print('set up tester user', user)
 
     add_tester_texts_to_db(user)
 
@@ -178,6 +160,30 @@ def logout():
 
 
 ##############################################################################
+# Homepage routes
+
+@app.route('/')
+def show_homepage():
+
+    return render_template('homepage.html')
+
+@app.route('/new_user')
+def show_new_user_page():
+
+    user = g.user
+
+    return render_template('new_user.html', username=user.username)
+
+
+@app.route('/new_tester')
+def show_new_tester_page():
+
+    user = g.user
+
+    return render_template('new_tester.html', username=user.username)
+
+
+##############################################################################
 # Error Routes
 
 @app.route('/submit_text', methods=["GET", "POST"])
@@ -199,11 +205,11 @@ def submit_text():
         # user = g.user
         
         text_to_submit = form.text.data
-        print('text_to_submit', text_to_submit)
+        # print('text_to_submit', text_to_submit)
         # text_to_submit = "Hi, how are you doing. I is doing well. I'm not have time."
 
         api_response = generate_api_response(text_to_submit)
-        print('API_RESPONSE =>', api_response)
+        # print('API_RESPONSE =>', api_response)
         # api_response = {
         # "edits": [
         #   {

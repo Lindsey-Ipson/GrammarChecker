@@ -120,7 +120,7 @@ nav {
   height: 3em;
   padding: 0 0.6em;
   background: #fff;
-  box-shadow: 0 0 0.6em rgba(170,170,170,.2);
+  box-shadow: 0 0 .8em rgba(170,170,170,.2);
   z-index: 10000;
   transition: all .3s;
   transform-style: preserve-3d;
@@ -131,6 +131,10 @@ nav {
   font-size: 24px;
   color: #64aaf1;
   color: #4594e2;
+}
+
+.navbar-brand:hover {
+  color: #ff5733;
 }
 
 .navbar-nav {

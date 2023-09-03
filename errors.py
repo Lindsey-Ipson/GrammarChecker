@@ -331,7 +331,7 @@ def add_tester_texts_to_db(user):
     for seed_text in seed_texts:
 
         api_response = generate_api_response(seed_text)
-        print('API_RESPONSE =>', api_response)
+        # print('API_RESPONSE =>', api_response)
 
         grammar_errors_from_api = isolate_errors_from_api_response(api_response, 'Grammar')
  

@@ -24,7 +24,8 @@ class User(db.Model):
 
     email = db.Column(
         db.Text,
-        nullable=False
+        nullable=False,
+        unique=True
     )
 
     password = db.Column(
