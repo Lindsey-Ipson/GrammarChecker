@@ -260,11 +260,11 @@ def create_errors_graph(error_types, error_counts, general_error_type, username)
     if general_error_type == "Grammar":
         title = "Your Grammar Errors"
         ylabel = "Error Types"
-        save_filename = f'static/grammar_errors_plot-{username}.png'
+        save_filename = f'static/plots/grammar_errors_plot-{username}.png'
     else:
         title = "Your Spelling Errors"
         ylabel = "Misspelled Words/Phrases"
-        save_filename = f'static/spelling_errors_plot-{username}.png'
+        save_filename = f'static/plots/spelling_errors_plot-{username}.png'
 
     for bar in bars:
         plt.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2, f'{bar.get_width()}%', ha='left', va='center', color="purple")
