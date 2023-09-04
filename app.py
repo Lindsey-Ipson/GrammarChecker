@@ -49,12 +49,11 @@ connect_db(app)
 
 @app.before_request
 def add_user_to_g():
-
-    if CURR_USER_KEY in session:
-        g.user = User.query.get(session[CURR_USER_KEY])
-
-    else:
-        g.user = None
+    if not request.path.startswith('/static/'):
+        if CURR_USER_KEY in session:
+            g.user = User.query.get(session[CURR_USER_KEY])
+        else:
+            g.user = None
 
 
 def do_login(user):
@@ -347,9 +346,9 @@ def get_more_errors():
     offset = (int(page) - 1) * errors_per_page
 
     if general_error_type == 'Grammar':
-        errors = Grammar_Error.query.filter_by(error_type=error_type).offset(offset).limit(errors_per_page).all()
+        errors = Grammar_Error.query.filter_by(error_type=error_type, user_id=g.user.id).offset(offset).limit(errors_per_page).all()
     elif general_error_type == 'Spelling':
-        errors = Spelling_Error.query.filter_by(replacement=error_type).offset(offset).limit(errors_per_page).all()
+        errors = Spelling_Error.query.filter_by(replacement=error_type, user_id=g.user.id).offset(offset).limit(errors_per_page).all()
     else:
 
         return jsonify({"errors": [], "has_more": False})
