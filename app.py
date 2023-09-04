@@ -126,7 +126,9 @@ def set_up_tester():
         flash("You've already set up your tester account.", "danger")
         return redirect("/submit_text")
 
-    add_tester_texts_to_db(user)
+    # add_tester_texts_to_db(user)
+    from errors import add_tester_texts_to_db_2
+    add_tester_texts_to_db_2(user)
 
     # return redirect('submit_text')
     return render_template('new_tester.html', username=user.username)
@@ -339,6 +341,7 @@ def get_more_errors():
 
     errors_per_page = 6
 
+    print('G.USER.ID--------==>', g.user.id)
     print('page', page)
     print('general_error_type', general_error_type)
     print('error_type', error_type) 
@@ -346,9 +349,9 @@ def get_more_errors():
     offset = (int(page) - 1) * errors_per_page
 
     if general_error_type == 'Grammar':
-        errors = Grammar_Error.query.filter_by(error_type=error_type, user_id=g.user.id).offset(offset).limit(errors_per_page).all()
+        errors = Grammar_Error.query.filter_by(error_type=error_type, user_id=g.user.id).order_by(Grammar_Error.timestamp.desc()).offset(offset).limit(errors_per_page).all()
     elif general_error_type == 'Spelling':
-        errors = Spelling_Error.query.filter_by(replacement=error_type, user_id=g.user.id).offset(offset).limit(errors_per_page).all()
+        errors = Spelling_Error.query.filter_by(replacement=error_type, user_id=g.user.id).order_by(Grammar_Error.timestamp.desc()).offset(offset).limit(errors_per_page).all()
     else:
 
         return jsonify({"errors": [], "has_more": False})

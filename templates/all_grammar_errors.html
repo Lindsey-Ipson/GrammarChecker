@@ -33,7 +33,6 @@
 {% endfor %}
 
 
-
 <script>
   document.addEventListener("DOMContentLoaded", function () {
 
@@ -42,7 +41,6 @@
     loadMoreButtons.forEach((button) => {
       button.addEventListener("click", function () {
         const errorType = button.getAttribute("data-error-type");
-        console.log('errorType' + errorType);
         const nextPage = parseInt(button.getAttribute("data-page"));
         const generalErrorType = button.getAttribute("data-general-error_type");
         const errorListContainer = document.getElementById(`${errorType}-error-list`);

@@ -311,3 +311,27 @@ def add_tester_texts_to_db(user):
 
         # db.session.add(new_text)
         db.session.commit()
+
+
+
+
+from seed_api_responses import seed_api_responses
+
+def add_tester_texts_to_db_2(user):
+    for  seed_text, seed_api_response in seed_api_responses:
+
+        # api_response = generate_api_response(seed_text)
+        # print('API_RESPONSE =>=>', api_response)
+
+        grammar_errors_from_api = isolate_errors_from_api_response(seed_api_response, 'Grammar')
+ 
+        spelling_errors_from_api = isolate_errors_from_api_response(seed_api_response, 'Spelling')
+
+        corrected_text = apply_all_corrections(seed_text, grammar_errors_from_api, spelling_errors_from_api)
+
+        new_text = add_text_to_db(user.id, seed_text, corrected_text)
+
+        add_errors_to_db(grammar_errors_from_api, spelling_errors_from_api, user.id, new_text.id)
+
+        # db.session.add(new_text)
+        db.session.commit()
