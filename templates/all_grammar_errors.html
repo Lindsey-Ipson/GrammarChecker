@@ -3,7 +3,7 @@
 
 <h1>Let's review your grammar errors</h1>
 
-<img src="{{ url_for('static', filename='grammar_errors_plot.png') }}" alt="Grammar Errors Plot" id="grammar-graph-image">
+<img src="{{ url_for('static', filename='grammar_errors_plot-' + username + '.png') }}" alt="Grammar Errors Plot" id="grammar-graph-image">
 
 {% set maxErrorsToShow = 6 %}
 

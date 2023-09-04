@@ -98,6 +98,7 @@ def signup():
             return render_template('signup.html', form=form)
 
         if not username_taken and not email_taken:
+            g.user=user
             do_login(user)
 
             if user.username.endswith('_tester'):
@@ -293,7 +294,7 @@ def show_all_grammar_errors():
 
     error_types, error_counts = create_graph_lists(error_type_counts, 'Grammar')
 
-    create_errors_graph(error_types, error_counts, 'Grammar')
+    create_errors_graph(error_types, error_counts, 'Grammar', user.username)
 
     html_errors = create_show_all_html_errors(error_type_counts, user.id, 'Grammar')
 
@@ -303,7 +304,7 @@ def show_all_grammar_errors():
         grammar_error["errors"] = serialized_errors
         all_serialized_errors.append(grammar_error)
 
-    return render_template('all_grammar_errors.html', all_grammar_errors=html_errors)
+    return render_template('all_grammar_errors.html', all_grammar_errors=html_errors, username = user.username)
 
 
 @app.route('/show_all_spelling_errors', methods=["GET"])
@@ -323,11 +324,11 @@ def show_all_spelling_errors():
 
     error_types, error_counts = create_graph_lists(error_type_counts, 'Spelling')
 
-    create_errors_graph(error_types, error_counts, 'Spelling')
+    create_errors_graph(error_types, error_counts, 'Spelling', user.username)
 
     html_errors = create_show_all_html_errors(error_type_counts, user.id, 'Spelling')
 
-    return render_template('all_spelling_errors.html', all_spelling_errors=html_errors)
+    return render_template('all_spelling_errors.html', all_spelling_errors=html_errors, username=user.username)
 
 
 @app.route('/get_more_errors', methods=['GET'])

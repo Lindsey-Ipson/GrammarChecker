@@ -246,7 +246,7 @@ def create_graph_lists(error_type_counts, general_error_type):
 
 import matplotlib.pyplot as plt
 
-def create_errors_graph(error_types, error_counts, general_error_type):
+def create_errors_graph(error_types, error_counts, general_error_type, username):
     plt.figure()
 
     bars = plt.barh(error_types, error_counts, color="orangered")
@@ -260,11 +260,11 @@ def create_errors_graph(error_types, error_counts, general_error_type):
     if general_error_type == "Grammar":
         title = "Your Grammar Errors"
         ylabel = "Error Types"
-        save_filename = 'static/grammar_errors_plot.png'
+        save_filename = f'static/grammar_errors_plot-{username}.png'
     else:
         title = "Your Spelling Errors"
         ylabel = "Misspelled Words/Phrases"
-        save_filename = 'static/spelling_errors_plot.png'
+        save_filename = f'static/spelling_errors_plot-{username}.png'
 
     for bar in bars:
         plt.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2, f'{bar.get_width()}%', ha='left', va='center', color="purple")
@@ -277,6 +277,7 @@ def create_errors_graph(error_types, error_counts, general_error_type):
     plt.savefig(save_filename, bbox_inches='tight')
 
     return "Success"
+# TODO change return
 
 
 def serialize_grammar_error(error):
