@@ -127,8 +127,8 @@ def set_up_tester():
         return redirect("/submit_text")
 
     # add_tester_texts_to_db(user)
-    from errors import add_tester_texts_to_db_2
-    add_tester_texts_to_db_2(user)
+ 
+    add_tester_texts_to_db(user)
 
     # return redirect('submit_text')
     return render_template('new_tester.html', username=user.username)
@@ -218,7 +218,7 @@ def submit_text():
             return redirect('/submit_text')
 
         api_response = generate_api_response(text_to_submit)
-        # print('API_RESPONSE =>', api_response)
+        print('API_RESPONSE >=>', api_response)
         # api_response = {
         # "edits": [
         #   {
