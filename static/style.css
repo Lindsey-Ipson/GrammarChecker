@@ -19,6 +19,10 @@ ul {
   text-align: left;
 }
 
+.error-li {
+  text-decoration: none;
+}
+
 button {
   color: rgb(255, 255, 255);
   background-color: rgb(72, 0, 255);

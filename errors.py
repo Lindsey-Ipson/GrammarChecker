@@ -211,6 +211,52 @@ def create_review_text_html_errors(error_list, general_error_type):
     return html_errors_list
 
 
+
+
+
+
+
+def create_review_previous_text_html_errors(error_objects, general_error_type):
+    
+    html_errors_list = []
+
+    for error in error_objects:
+
+        replacement = error.replacement
+        if replacement == "":
+            replacement = "(None - simply remove)"
+
+        new_error_object = {
+            # "text_id": error.text_id,
+            "sentence": error.sentence,
+            "start": error.start,
+            "end": error.end,
+            "replacement": replacement,
+        }
+
+        if general_error_type == "Grammar":
+            new_error_object["error_name"] = parse_error_subcategory(error.error_type)       
+
+        html_errors_list.append(new_error_object)
+    
+    return html_errors_list
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def create_show_all_html_errors(error_types_and_counts, user_id, general_error_type):
     
     show_all_errors_objects = []
@@ -288,7 +334,9 @@ def serialize_grammar_error(error):
         "sentence": error.sentence,
         "start": error.start,
         "end": error.end,
-        "timestamp": error.timestamp
+        "timestamp": error.timestamp,
+        # JA
+        "text_id": error.text_id
     }
 
 

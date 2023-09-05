@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from errors import generate_api_response, isolate_errors_from_api_response, add_errors_to_db, apply_all_corrections, add_errors_to_db, add_text_to_db, get_error_type_counts, create_review_text_html_errors, create_show_all_html_errors, create_graph_lists, create_errors_graph, parse_error_subcategory, serialize_grammar_error, add_tester_texts_to_db
 
 from forms import SignupForm, LoginForm, SubmitTextForm
-from models import db, connect_db, User, Grammar_Error, Spelling_Error
+from models import db, connect_db, Text, User, Grammar_Error, Spelling_Error
 
 import matplotlib
 matplotlib.use('Agg')
@@ -264,6 +264,12 @@ def submit_text():
 
         add_errors_to_db(grammar_errors_from_api, spelling_errors_from_api, user.id, new_text.id)
 
+
+        print("Grammar Errors from API: ", grammar_errors_from_api)
+        print("Spelling Errors from API: ", spelling_errors_from_api)
+
+
+
         grammar_html_errors = create_review_text_html_errors(grammar_errors_from_api, 'Grammar')
         spelling_html_errors = create_review_text_html_errors(spelling_errors_from_api, 'Spelling')
 
@@ -273,6 +279,52 @@ def submit_text():
         return render_template('review_text_submission.html', text=new_text, grammar_html_errors=grammar_html_errors, spelling_html_errors=spelling_html_errors) 
 
     return render_template('submit_text.html', form=form)
+
+
+
+
+
+
+
+
+
+
+from errors import create_review_previous_text_html_errors
+
+@app.route('/review_previous_text/<text_id>', methods=["GET"])
+def review_review_previous_text(text_id):
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/signup")
+
+    user = g.user
+
+    text = Text.query.filter_by(id=text_id).one()
+    print("Text: ->", text)
+
+    grammar_errors = Grammar_Error.query.filter_by(text_id=text_id).all()
+    spelling_errors = Spelling_Error.query.filter_by(text_id=text_id).all()
+
+    grammar_html_errors = create_review_previous_text_html_errors(grammar_errors, 'Grammar')
+
+    spelling_html_errors = create_review_previous_text_html_errors(spelling_errors, 'Spelling')
+
+    return render_template('review_text_submission.html', text=text, grammar_html_errors=grammar_html_errors, spelling_html_errors=spelling_html_errors) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @app.route('/show_all_grammar_errors', methods=["GET"])
@@ -350,6 +402,7 @@ def get_more_errors():
     error_list = []
     for error in errors:
         error_dict = {
+            "text_id": error.text_id,
             "start": error.start,
             "end": error.end,
             "replacement": error.replacement,
