@@ -33,8 +33,6 @@ class User(db.Model):
         nullable=False,
     )
 
-
-# TODO: delete if I only reference in first test of user model
     texts = db.relationship('Text', backref='user', lazy='subquery')
 
     grammar_errors = db.relationship('Grammar_Error', backref='user', lazy='subquery')
@@ -60,11 +58,6 @@ class User(db.Model):
 
     @classmethod
     def authenticate(cls, username, password):
-        """Class method - called on the class, not an individual user.
-        It searches for a user whose password hash matches this password
-        and, if it finds such a user, returns that user object.
-        If can't find matching user (or if password is wrong), returns False.
-        """
 
         user = cls.query.filter_by(username=username).first()
 

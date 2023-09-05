@@ -289,15 +289,11 @@ def serialize_grammar_error(error):
         "start": error.start,
         "end": error.end,
         "timestamp": error.timestamp
-        # Add other relevant fields here
     }
 
 
 def add_tester_texts_to_db(user):
     for  seed_text, seed_api_response in seed_api_responses:
-
-        # api_response = generate_api_response(seed_text)
-        # print('API_RESPONSE =>=>', api_response)
 
         grammar_errors_from_api = isolate_errors_from_api_response(seed_api_response, 'Grammar')
  
@@ -309,5 +305,4 @@ def add_tester_texts_to_db(user):
 
         add_errors_to_db(grammar_errors_from_api, spelling_errors_from_api, user.id, new_text.id)
 
-        # db.session.add(new_text)
         db.session.commit()

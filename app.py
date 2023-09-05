@@ -110,7 +110,6 @@ def signup():
 
 @app.route('/set_up_tester', methods=['GET', 'POST'])
 def set_up_tester():
-
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/signup")
@@ -126,11 +125,15 @@ def set_up_tester():
         flash("You've already set up your tester account.", "danger")
         return redirect("/submit_text")
 
-    # add_tester_texts_to_db(user)
- 
+    return render_template('new_tester.html', username=user.username)
+
+
+@app.route('/add_tester_texts', methods=['POST'])
+def add_tester_texts():
+    user = g.user
+
     add_tester_texts_to_db(user)
 
-    # return redirect('submit_text')
     return render_template('new_tester.html', username=user.username)
 
 
@@ -199,18 +202,13 @@ def submit_text():
         return redirect("/signup")
     
     user = g.user
-
-    print('USER', user)
     
     if len(user.texts) >= 25:
         return render_template('over_text_limit.html')
 
     if form.is_submitted() and form.validate():
-
-        # user = g.user
         
         text_to_submit = form.text.data
-        # print('text_to_submit', text_to_submit)
         # text_to_submit = "Hi, how are you doing. I is doing well. I'm not have time."
 
         if len(text_to_submit) > 1200:
@@ -218,7 +216,6 @@ def submit_text():
             return redirect('/submit_text')
 
         api_response = generate_api_response(text_to_submit)
-        print('API_RESPONSE >=>', api_response)
         # api_response = {
         # "edits": [
         #   {
@@ -334,17 +331,11 @@ def show_all_spelling_errors():
 
 @app.route('/get_more_errors', methods=['GET'])
 def get_more_errors():
-
     general_error_type = request.args.get('general_error_type')
     error_type = request.args.get('error_type')
     page = request.args.get('page')
 
     errors_per_page = 6
-
-    print('G.USER.ID--------==>', g.user.id)
-    print('page', page)
-    print('general_error_type', general_error_type)
-    print('error_type', error_type) 
 
     offset = (int(page) - 1) * errors_per_page
 
@@ -355,8 +346,6 @@ def get_more_errors():
     else:
 
         return jsonify({"errors": [], "has_more": False})
-    
-    print('errors', errors)
 
     error_list = []
     for error in errors:
@@ -378,8 +367,10 @@ def get_more_errors():
         "has_more": has_more
     }
 
-    print('jsonify(response_data)', jsonify(response_data))
-
     return jsonify(response_data)
+
+
+
+
 
 

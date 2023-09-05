@@ -106,21 +106,23 @@ class UserViewsTestCase(TestCase):
 
     def test_signup_tester_valid(self):
         with self.client as c:
-            resp = c.post("/signup", data={
+            resp1 = c.post("/signup", data={
                 "username": "user_tester",
                 "email": "user_tester@email.com",
                 "password": "user_tester_password"
             }, follow_redirects=True)
 
-            tester = User.query.filter_by(username="user_tester").first()
+            resp2 = c.post("/add_tester_texts")
+
+            tester = User.query.filter_by(username="user_tester").one()
 
             self.assertNotEqual(len(tester.texts), 0)
             self.assertNotEqual(len(tester.grammar_errors), 0)
             self.assertNotEqual(len(tester.spelling_errors), 0)
 
-            self.assertEqual(resp.status_code, 200)
-            self.assertIn("Hello user_tester, and thanks for joining GrammarChecker.", str(resp.data))
-            self.assertIn("You have signed up for a demonstration account", str(resp.data))
+            self.assertEqual(resp2.status_code, 200)
+            self.assertIn("Hello user_tester, and thanks for joining GrammarChecker.", str(resp2.data))
+            self.assertIn("You have signed up for a demonstration account", str(resp2.data))
 
 
     def test_signup_username_taken(self):

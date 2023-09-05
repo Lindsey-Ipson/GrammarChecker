@@ -13,7 +13,7 @@ app.config['WTF_CSRF_ENABLED'] = False
 app.config['TESTING'] = True
 app.config['DEBUG_TB_HOSTS'] = ['dont-show-debug-toolbar']
 
-class UserViewsTestCase(TestCase):
+class ErrorsViewsTestCase(TestCase):
 
     def setUp(self):
         with app.app_context():
@@ -252,7 +252,7 @@ class UserViewsTestCase(TestCase):
                 self.assertIn("You don&#39;t have any grammar errors yet! Keep submitting text to have your grammar errors collected.", str(resp.data))
                 self.assertIn('<h1>Submit New Text</h1>', str(resp.data))
 
-    
+ 
     def test_show_all_spelling_errors_valid(self):
         with self.client as c:
             with c.session_transaction() as sess:
@@ -262,7 +262,9 @@ class UserViewsTestCase(TestCase):
 
             self.assertEqual(resp.status_code, 200)
             self.assertIn("<h1>Let\\\'s review your spelling errors</h1>", str(resp.data))
-            self.assertIn('alt="Spelling Errors Plot" id="spelling-graph-image', str(resp.data))
+            self.assertIn('<img src="/static/plots/spelling_errors_plot-setup_user.png" alt="Spelling Errors Plot" id="grammar-graph-image">', str(resp.data))
+
+
             self.assertIn('<h3 class="error-heading"><span class="error-type">Here</span><span class="error-count"> <span class="line-divider">\\xe2\\x94\\x82</span> 1 count</span>', str(resp.data))
 
     
@@ -295,26 +297,26 @@ class UserViewsTestCase(TestCase):
                 with c.session_transaction() as sess:
                     sess[CURR_USER_KEY] = self.setup_user_id
 
-                    for _ in range(7):
-                        new_grammar_error = Grammar_Error(
-                            user_id=self.setup_user_id,
-                            text_id=self.setup_text_id,
-                            error_type='R:VERB:SVA',
-                            start=5,
-                            end=8,
-                            replacement='is',
-                            sentence='Here are another grammar error example.'
-                        )   
-                        db.session.add(new_grammar_error)
-                        db.session.commit()
+                for _ in range(7):
+                    new_grammar_error = Grammar_Error(
+                        user_id=self.setup_user_id,
+                        text_id=self.setup_text_id,
+                        error_type='R:VERB:SVA',
+                        start=5,
+                        end=8,
+                        replacement='is',
+                        sentence='Here are another grammar error example.'
+                    )   
+                    db.session.add(new_grammar_error)
+                    db.session.commit()
 
-                    resp = c.get('/get_more_errors', query_string={
-                        'general_error_type': 'Grammar', 
-                        'error_type': 'R:VERB:SVA',
-                        'page': 2
-                    }, follow_redirects=True)
+                resp = c.get('/get_more_errors', query_string={
+                    'general_error_type': 'Grammar', 
+                    'error_type': 'R:VERB:SVA',
+                    'page': 2
+                }, follow_redirects=True)
 
                 self.assertEqual(resp.status_code, 200)
-                self.assertIn('{\\n  "errors": [\\n    {\\n      "end": 8,\\n      "error_name": "Incorrect subject-verb agreement",\\n      "replacement": "is",\\n      "sentence": "Here are another grammar error example.",\\n      "start": 5\\n    },\\n    {\\n      "end": 8,\\n      "error_name": "Incorrect subject-verb agreement",\\n      "replacement": "is",\\n      "sentence": "Here are another grammar error example.",\\n      "start": 5\\n    }\\n  ],\\n  "has_more": false\\n}', str(resp.data))
+                self.assertIn('{\\n  "errors": [\\n    {\\n      "end": 8,\\n      "error_name": "Incorrect subject-verb agreement",\\n      "replacement": "is",\\n      "sentence": "Here are another grammar error example.",\\n      "start": 5\\n    },\\n    {\\n      "end": 8,\\n      "error_name": "Incorrect subject-verb agreement",\\n      "replacement": "is",\\n      "sentence": "Here are a grammar error example.",\\n      "start": 5\\n    }\\n  ],\\n  "has_more": false\\n}\\n', str(resp.data))
                 
 

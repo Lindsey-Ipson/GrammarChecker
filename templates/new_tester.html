@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<div id="loading">
+  <h2>Please allow a moment for your texts and errors to be prepopulated...</h2>
+  <div class="loader"></div>
+</div>
+
+
+<div id="content" style="display: none;">
+
 <h1>Welcome to GrammarChecker!</h1>
 
 <div class="text-container">
@@ -11,5 +19,30 @@
   </p>
 
 </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#loading").show();  // Show loading screen
+        $("#content").hide();   // Hide content
+
+        $.ajax({
+            type: "POST",
+            url: "/add_tester_texts",  // This should be the URL to your function
+            success: function (data) {
+                // Hide loading screen and show content when the operation is complete
+                $("#loading").hide();
+                $("#content").show();
+            },
+            error: function (error) {
+                // Handle errors if necessary
+                console.error("Error: " + error);
+            }
+        });
+    });
+</script>
 
 {% endblock %}
