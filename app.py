@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, flash, redirect, session, g, 
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from errors import generate_api_response, isolate_errors_from_api_response, add_errors_to_db, apply_all_corrections, add_errors_to_db, add_text_to_db, get_error_type_counts, create_review_text_html_errors, create_show_all_html_errors, create_graph_lists, create_errors_graph, parse_error_subcategory, serialize_grammar_error, add_tester_texts_to_db
+from errors import generate_api_response, isolate_errors_from_api_response, add_errors_to_db, apply_all_corrections, add_errors_to_db, add_text_to_db, get_error_type_counts, create_review_text_html_errors, create_show_all_html_errors, create_graph_lists, create_errors_graph, parse_error_subcategory, serialize_grammar_error, add_tester_texts_to_db, create_review_previous_text_html_errors
 
 from forms import SignupForm, LoginForm, SubmitTextForm
 from models import db, connect_db, Text, User, Grammar_Error, Spelling_Error
@@ -203,7 +203,7 @@ def submit_text():
     
     user = g.user
     
-    if len(user.texts) >= 25:
+    if len(user.texts) >= 35:
         return render_template('over_text_limit.html')
 
     if form.is_submitted() and form.validate():
@@ -264,12 +264,6 @@ def submit_text():
 
         add_errors_to_db(grammar_errors_from_api, spelling_errors_from_api, user.id, new_text.id)
 
-
-        print("Grammar Errors from API: ", grammar_errors_from_api)
-        print("Spelling Errors from API: ", spelling_errors_from_api)
-
-
-
         grammar_html_errors = create_review_text_html_errors(grammar_errors_from_api, 'Grammar')
         spelling_html_errors = create_review_text_html_errors(spelling_errors_from_api, 'Spelling')
 
@@ -281,16 +275,6 @@ def submit_text():
     return render_template('submit_text.html', form=form)
 
 
-
-
-
-
-
-
-
-
-from errors import create_review_previous_text_html_errors
-
 @app.route('/review_previous_text/<text_id>', methods=["GET"])
 def review_review_previous_text(text_id):
 
@@ -301,7 +285,6 @@ def review_review_previous_text(text_id):
     user = g.user
 
     text = Text.query.filter_by(id=text_id).one()
-    print("Text: ->", text)
 
     grammar_errors = Grammar_Error.query.filter_by(text_id=text_id).all()
     spelling_errors = Spelling_Error.query.filter_by(text_id=text_id).all()
@@ -311,20 +294,6 @@ def review_review_previous_text(text_id):
     spelling_html_errors = create_review_previous_text_html_errors(spelling_errors, 'Spelling')
 
     return render_template('review_text_submission.html', text=text, grammar_html_errors=grammar_html_errors, spelling_html_errors=spelling_html_errors) 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 @app.route('/show_all_grammar_errors', methods=["GET"])
@@ -386,17 +355,19 @@ def get_more_errors():
     general_error_type = request.args.get('general_error_type')
     error_type = request.args.get('error_type')
     page = request.args.get('page')
-
+    
     errors_per_page = 6
 
     offset = (int(page) - 1) * errors_per_page
 
     if general_error_type == 'Grammar':
         errors = Grammar_Error.query.filter_by(error_type=error_type, user_id=g.user.id).order_by(Grammar_Error.timestamp.desc()).offset(offset).limit(errors_per_page).all()
-    elif general_error_type == 'Spelling':
-        errors = Spelling_Error.query.filter_by(replacement=error_type, user_id=g.user.id).order_by(Grammar_Error.timestamp.desc()).offset(offset).limit(errors_per_page).all()
-    else:
+        following_error = Grammar_Error.query.filter_by(error_type=error_type, user_id=g.user.id).order_by(Grammar_Error.timestamp.desc()).offset(offset + errors_per_page).limit(1).all()
 
+    elif general_error_type == 'Spelling':
+        errors = Spelling_Error.query.filter_by(replacement=error_type, user_id=g.user.id).order_by(Spelling_Error.timestamp.desc()).offset(offset).limit(errors_per_page).all()
+        following_error = Spelling_Error.query.filter_by(replacement=error_type, user_id=g.user.id).order_by(Spelling_Error.timestamp.desc()).offset(offset + errors_per_page).limit(1).all()
+    else:
         return jsonify({"errors": [], "has_more": False})
 
     error_list = []
@@ -413,7 +384,7 @@ def get_more_errors():
 
         error_list.append(error_dict)
 
-    has_more = len(error_list) == errors_per_page
+    has_more = len(following_error) > 0
 
     response_data = {
         "errors": error_list,
@@ -421,6 +392,7 @@ def get_more_errors():
     }
 
     return jsonify(response_data)
+
 
 
 

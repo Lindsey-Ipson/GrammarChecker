@@ -13,7 +13,7 @@ app.config['WTF_CSRF_ENABLED'] = False
 app.config['TESTING'] = True
 app.config['DEBUG_TB_HOSTS'] = ['dont-show-debug-toolbar']
 
-class ErrorsViewsTestCase(TestCase):
+class ErrorViewsTestCase(TestCase):
 
     def setUp(self):
         with app.app_context():
@@ -76,26 +76,6 @@ class ErrorsViewsTestCase(TestCase):
             db.session.rollback()
             db.drop_all()
 
-
-# To test:
-# - get_submit_text_form_valid - DONE
-# - get_submit_text_form_not_logged_in - DONE
-# - submit_text_valid - DONE
-# - submit_text_over_text_limit - DONE
-# - submit_text_over_characer_limit - DONE
-# - submit_text_empty - DONE
-# - submit_text_no_user - DONE
-# - submit_text_invalid_user - DONE
-# - ---
-# - show_all_grammar_errors_valid - DONE
-# - show_all_grammar_errors_not_logged_in - DONE
-# - show_all_grammar_errors_no_errors - DONE
-# - ---
-# - show_all_spelling_errors_valid - DONE
-# - show_all_spelling_errors_not_logged_in - DONE
-# - show_all_spelling_errors_no_errors - DONE
-# - ---
-# - get_more_errors - DONE
 
     def test_get_submit_text_form_valid(self):
         with self.client as c:
@@ -226,7 +206,8 @@ class ErrorsViewsTestCase(TestCase):
 
             self.assertEqual(resp.status_code, 200)
             self.assertIn("<h1>Let\\\'s review your grammar errors</h1>", str(resp.data))
-            self.assertIn('alt="Grammar Errors Plot" id="grammar-graph-image', str(resp.data))
+            # self.assertIn('alt="Grammar Errors Plot" id="grammar-graph-image', str(resp.data))
+            self.assertIn('<img src="/static/plots/grammar_errors_plot-setup_user.png" alt="Grammar Errors Plot" id="grammar-graph-image"/>', str(resp.data))
             self.assertIn('<h3 class="error-heading"><span class="error-type">Incorrect subject-verb agreement</span><span class="error-count"> <span class="line-divider">\\xe2\\x94\\x82</span> 1 count', str(resp.data))
 
 
@@ -262,9 +243,7 @@ class ErrorsViewsTestCase(TestCase):
 
             self.assertEqual(resp.status_code, 200)
             self.assertIn("<h1>Let\\\'s review your spelling errors</h1>", str(resp.data))
-            self.assertIn('<img src="/static/plots/spelling_errors_plot-setup_user.png" alt="Spelling Errors Plot" id="grammar-graph-image">', str(resp.data))
-
-
+            self.assertIn('<img src="/static/plots/spelling_errors_plot-setup_user.png" alt="Spelling Errors Plot" id="spelling-graph-image">', str(resp.data))
             self.assertIn('<h3 class="error-heading"><span class="error-type">Here</span><span class="error-count"> <span class="line-divider">\\xe2\\x94\\x82</span> 1 count</span>', str(resp.data))
 
     

@@ -3,7 +3,7 @@
 
 <h1>Let's review your spelling errors</h1>
 
-<img src="{{ url_for('static', filename='plots/spelling_errors_plot-' + username + '.png') }}" alt="Spelling Errors Plot" id="grammar-graph-image">
+<img src="{{ url_for('static', filename='plots/spelling_errors_plot-' + username + '.png') }}" alt="Spelling Errors Plot" id="spelling-graph-image">
 
 {% set maxErrorsToShow = 6 %}
 
@@ -19,12 +19,15 @@
     {% endif %}
     <ul class="ul-column" id="{{ error_type.error_type }}-error-list">
       {% for error in errorList[0:maxErrorsToShow] %}
-        <li class="li-column">{{ error.sentence[:error.start] }}<b>{{ error.sentence[error.start:error.end] }}</b>{{ error.sentence[error.end:] }} <span class="arrow-divider">→</span>
-        {% if error.replacement %}
-          <b>{{ error.replacement }}</b>
-        {% else %}
-          <span class="remove-text">remove bolded text</span>
-        {% endif %}
+        <li class="li-column">
+          <a  class="error-li" href="/review_previous_text/{{ error.text_id }}">
+          {{ error.sentence[:error.start] }}<b>{{ error.sentence[error.start:error.end] }}</b>{{ error.sentence[error.end:] }} <span class="arrow-divider">→</span>
+          {% if error.replacement %}
+            <b>{{ error.replacement }}</b>
+          {% else %}
+            <span class="remove-text">remove bolded text</span>
+          {% endif %}
+          </a>
         </li>
       {% endfor %}
     </ul>
@@ -42,6 +45,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   loadMoreButtons.forEach((button) => {
     button.addEventListener("click", function () {
+      console.log('button clicked');
+
+
+
+
+
       const errorType = button.getAttribute("data-error-type");
       console.log('errorType' + errorType);
       const nextPage = parseInt(button.getAttribute("data-page"));
@@ -57,7 +66,13 @@ document.addEventListener("DOMContentLoaded", function () {
           data.errors.forEach((error) => {
             const listItem = document.createElement("li");
             listItem.classList.add("li-column");
-            listItem.innerHTML = `${error.sentence.slice(0, error.start)}<b>${error.sentence.slice(
+            const errorA = document.createElement('a');
+            errorA.classList.add('error-li');
+            errorA.setAttribute('href', `/review_previous_text/${error.text_id}`);
+            listItem.appendChild(errorA);
+
+
+            errorA.innerHTML = `${error.sentence.slice(0, error.start)}<b>${error.sentence.slice(
               error.start,
               error.end
             )}</b>${error.sentence.slice(error.end)} <span class="arrow-divider">→</span> ${

@@ -7,9 +7,13 @@
   id="grammar-graph-image"
 />
 
-{% set maxErrorsToShow = 6 %} {% for error_type in all_grammar_errors %} {% set
-errorList = error_type.errors %} {% set totalErrors = errorList|length %} {% if
-error_type.count == 1 %}
+{% set maxErrorsToShow = 6 %} 
+
+{% for error_type in all_grammar_errors %} 
+{% set errorList = error_type.errors %} 
+{% set totalErrors = errorList|length %} 
+
+{% if error_type.count == 1 %}
 <h3 class="error-heading">
   <span class="error-type">{{ error_type.error_name }}</span
   ><span class="error-count">
