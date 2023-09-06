@@ -29,11 +29,11 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 app.config['DEBUG'] = os.environ.get('FLASK_DEBUG', True)
 
-toolbar = DebugToolbarExtension(app)
+# When testing, uncomment the following line:
+# toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 
-# When testing, comment the following lines:
 with app.app_context():  
 #     db.drop_all()
     db.create_all()
