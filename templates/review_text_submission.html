@@ -18,7 +18,7 @@
     {% for error in grammar_html_errors %}
       <li class="li-column">
         <div>
-          <p>{{ error["error_name"] }}</p>
+          <p><b>{{ error["error_name"] }}</b></p>
           <p>
             {{ error["sentence"][:error["start"]] }}<b>{{ error["sentence"][error["start"]:error["end"]] }}</b>{{ error["sentence"][error["end"]:] }} <span class="divider">→</span>
             {% if error.replacement %}
