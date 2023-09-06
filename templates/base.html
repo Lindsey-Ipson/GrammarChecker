@@ -21,9 +21,9 @@
       {% if not g.user %}
         <a class="navbar-brand" href="/">📑 GrammarChecker</a>
       {% elif g.user.username.endswith('_tester') %}
-        <a class="navbar-brand" href="new_tester">📑 GrammarChecker</a>
+        <a class="navbar-brand" href="/homepage_tester">📑 GrammarChecker</a>
       {% else %}
-        <a class="navbar-brand" href="/new_user">📑 GrammarChecker </a>
+        <a class="navbar-brand" href="/homepage_user">📑 GrammarChecker </a>
       {% endif %}
 
       <ul class="navbar-nav">

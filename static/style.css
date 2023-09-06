@@ -19,10 +19,6 @@ ul {
   text-align: left;
 }
 
-.error-li {
-  text-decoration: none;
-}
-
 button {
   color: rgb(255, 255, 255);
   background-color: rgb(72, 0, 255);
@@ -65,7 +61,12 @@ button:hover {
   font-size: .9rem;
 }
 
-/* Messages */
+.error-li {
+  text-decoration: none;
+  color: rgb(13, 41, 151);
+}
+
+/* Message styles */
 
 .flashed-messages {
   padding: 20px;
@@ -154,7 +155,7 @@ nav {
   color: rgb(255, 87, 51);
 }
 
-/* Loading spinner */
+/* Loading spinner styles */
 
 .loader {
   border: 12px solid rgb(243, 243, 243);

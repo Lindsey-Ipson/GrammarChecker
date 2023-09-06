@@ -1,10 +1,8 @@
-import json
 import requests
 import uuid
 import os
 from datetime import datetime
-from flask import session, g
-from sqlalchemy import func, desc
+from sqlalchemy import func
 import matplotlib.pyplot as plt
 
 from models import Grammar_Error, Spelling_Error, Text, db
@@ -186,75 +184,41 @@ def get_error_type_counts(user_id, general_error_type):
     return result
 
 
-def create_review_text_html_errors(error_list, general_error_type):
+def create_review_text_html_errors(error_list, data_type, general_error_type):
     
     html_errors_list = []
 
     for error in error_list:
 
-        replacement = error["replacement"]
-        if replacement == "":
-            replacement = "(None - simply remove)"
+        if data_type == "class_instances":
 
-        new_error_object = {
-            "sentence": error["sentence"],
-            "start": error["start"],
-            "end": error["end"],
-            "replacement": replacement,
-        }
+            new_error_object = {
+                "text_id": error.text_id,
+                "sentence": error.sentence,
+                "start": error.start,
+                "end": error.end,
+                "replacement": error.replacement or ''
+            }
 
-        if general_error_type == "Grammar":
-            new_error_object["error_name"] = parse_error_subcategory(error["error_type"])       
+            if general_error_type == "Grammar":
+                new_error_object["error_name"] = parse_error_subcategory(error.error_type) 
 
-        html_errors_list.append(new_error_object)
-    
-    return html_errors_list
+        else:
+            
+            new_error_object = {
+                "sentence": error["sentence"],
+                "start": error["start"],
+                "end": error["end"],
+                "replacement": error["replacement"] or '',
+             }
 
-
-
-
-
-
-
-def create_review_previous_text_html_errors(error_objects, general_error_type):
-    
-    html_errors_list = []
-
-    for error in error_objects:
-
-        replacement = error.replacement
-        if replacement == "":
-            replacement = "(None - simply remove)"
-
-        new_error_object = {
-            # "text_id": error.text_id,
-            "sentence": error.sentence,
-            "start": error.start,
-            "end": error.end,
-            "replacement": replacement,
-        }
-
-        if general_error_type == "Grammar":
-            new_error_object["error_name"] = parse_error_subcategory(error.error_type)       
+            if general_error_type == "Grammar":
+                new_error_object["error_name"] = parse_error_subcategory(error["error_type"]) 
+     
 
         html_errors_list.append(new_error_object)
     
     return html_errors_list
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 def create_show_all_html_errors(error_types_and_counts, user_id, general_error_type):
@@ -272,8 +236,7 @@ def create_show_all_html_errors(error_types_and_counts, user_id, general_error_t
     return show_all_errors_objects
 
 
-# GRAPH FUNCTIONS
-# -------------------------------------------------------------------------
+# GRAPH FUNCTIONS --------------------------------------------------------------------------
 
 def create_graph_lists(error_type_counts, general_error_type):
     error_types = []
@@ -319,25 +282,7 @@ def create_errors_graph(error_types, error_counts, general_error_type, username)
     plt.title(title, color="darkblue")
     plt.ylabel(ylabel, color="darkblue", fontsize=12)
 
-    plt.savefig(save_filename, bbox_inches='tight')
-
-    return "Success"
-# TODO change return
-
-
-def serialize_grammar_error(error):
-    return {
-        "id": error.id,
-        "user": error.user_id,
-        "error_type": error.error_type,
-        "replacement": error.replacement,
-        "sentence": error.sentence,
-        "start": error.start,
-        "end": error.end,
-        "timestamp": error.timestamp,
-        # JA
-        "text_id": error.text_id
-    }
+    return plt.savefig(save_filename, bbox_inches='tight')
 
 
 def add_tester_texts_to_db(user):
@@ -354,3 +299,4 @@ def add_tester_texts_to_db(user):
         add_errors_to_db(grammar_errors_from_api, spelling_errors_from_api, user.id, new_text.id)
 
         db.session.commit()
+

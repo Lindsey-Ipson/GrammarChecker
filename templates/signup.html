@@ -3,24 +3,23 @@
 
 <h2 class="centered">Sign up to start improving your grammar and spelling skills today!</h2>
 
-<div>
-  <div class="text-container">
-    <p class="important-note small-note"> <b>NOTE:</b> To explore this site for demonstration purposes, add the suffix “_tester” to your username when signing up (i.e., Nick425_tester), and your account will be prepopulated with text submissions and errors.
-    </p>
-  <form method="POST" class="account-form">
-    {{ form.hidden_tag() }}
-    {% for field in form if field.widget.input_type != 'hidden' %}
-      {% for error in field.errors %}
-        <span class="danger">{{ error }}</span>
-      {% endfor %}
-      <div class="account-label-input">
-      {{  field.label }}
-      {{ field(class="account-input") }}
-      </div>
+<div class="text-container">
+  <p class="important-note small-note"> <b>NOTE:</b> To explore this site for demonstration purposes, add the suffix “_tester” to your username when signing up (i.e., Nick425_tester), and your account will be prepopulated with text submissions and errors.</p>
+
+<form method="POST" class="account-form">
+  {{ form.hidden_tag() }}
+  {% for field in form if field.widget.input_type != 'hidden' %}
+    {% for error in field.errors %}
+      <span class="danger">{{ error }}</span>
     {% endfor %}
-    <button>Sign me up!</button>
-  </form>
-  </div>
+    <div class="account-label-input">
+    {{  field.label }}
+    {{ field(class="account-input") }}
+    </div>
+  {% endfor %}
+  <button>Sign me up!</button>
+</form>
+
 </div>
 
 {% endblock %}

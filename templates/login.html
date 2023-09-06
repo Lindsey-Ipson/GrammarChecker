@@ -1,26 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<div>
   <div>
-    <div>
-      <h2>Welcome back! Please login.</h2>
+    <h2>Welcome back! Please login.</h2>
 
-      <form method="POST" class="account-form">
-        {{ form.hidden_tag() }}
-
-        {% for field in form if field.widget.input_type != 'hidden' %}
-          {% for error in field.errors %}
-            <span class="danger">{{ error }}</span>
-          {% endfor %}
-          <div class="account-label-input">
-          {{  field.label }}
-          {{ field(class="account-input") }}
-          </div>
+    <form method="POST" class="account-form">
+      {{ form.hidden_tag() }}
+      {% for field in form if field.widget.input_type != 'hidden' %}
+        {% for error in field.errors %}
+          <span class="danger">{{ error }}</span>
         {% endfor %}
-
-        <button class="account-button">Log in</button>
-      </form>
-    </div>
+        <div class="account-label-input">
+        {{  field.label }}
+        {{ field(class="account-input") }}
+        </div>
+      {% endfor %}
+      <button class="account-button">Log in</button>
+    </form>
+    
   </div>
+</div>
 
 {% endblock %}

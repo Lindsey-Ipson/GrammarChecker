@@ -1,71 +1,57 @@
 {% extends 'base.html' %} 
 {% block content %}
 
-<div>
-  <h1>Let's review your text!</h1>
-  <div class="submission original-submission">
-    <h2>Your Submission</h2>
-    <p class="submission-p">{{ text.original_text }}</p>
-  </div>
-  <div class="submission edited-submission">
-    <h2>Edited Version</h2>
-    <p class="submission-p">{{ text.edited_text }}</p>
-  </div>
+<h1>Let's review your text!</h1>
 
-  {% if grammar_html_errors %}
+<div class="submission original-submission">
+  <h2>Your Submission</h2>
+  <p class="submission-p">{{ text.original_text }}</p>
+</div>
+<div class="submission edited-submission">
+  <h2>Edited Version</h2>
+  <p class="submission-p">{{ text.edited_text }}</p>
+</div>
+
+{% if grammar_html_errors %}
   <h2>Grammar Errors Found:</h2>
   <ul class="ul-column">
     {% for error in grammar_html_errors %}
-    <li class="li-column">
-    <div>
-      <p>
-      {{ error["error_name"] }}
-      </p>
-      <p>
-        {{ error["sentence"][:error["start"]] }}<b>{{ error["sentence"][error["start"]:error["end"]] }}</b>{{ error["sentence"][error["end"]:] }} <span class="divider">→</span> 
-        {% if error.replacement %} 
-          <b>{{ error.replacement }}</b> 
-        {% else %} 
-          <span class="remove-text">remove bolded text</span> 
-        {% endif %}
-        </p>
-      </p>
-    </div>
-    </li>
+      <li class="li-column">
+        <div>
+          <p>{{ error["error_name"] }}</p>
+          <p>
+            {{ error["sentence"][:error["start"]] }}<b>{{ error["sentence"][error["start"]:error["end"]] }}</b>{{ error["sentence"][error["end"]:] }} <span class="divider">→</span>
+            {% if error.replacement %}
+              <b>{{ error.replacement }}</b>
+            {% else %}
+              <span class="remove-text">remove bolded text</span>
+            {% endif %}
+          </p>
+        </div>
+      </li>
     {% endfor %}
   </ul>
-  {% endif %}
+{% endif %}
 
-    {% if spelling_html_errors %}
+{% if spelling_html_errors %}
   <h2>Spelling Errors Found:</h2>
   <ul class="ul-column">
     {% for error in spelling_html_errors %}
-    <li class="li-column">
-    <div>
-      <p>
-            {{ error["sentence"][:error["start"]] }}<b>{{ error["sentence"][error["start"]:error["end"]] }}</b>{{ error["sentence"][error["end"]:] }} <span class="divider">→</span> 
-        {% if error.replacement %} 
-          <b>{{ error.replacement }}</b> 
-        {% else %} 
-          <span class="remove-text">remove bolded text</span> 
-        {% endif %}
-      </p>
-    <br />
+      <li class="li-column">
+        <div>
+          <p>
+            {{ error["sentence"][:error["start"]] }}<b>{{ error["sentence"][error["start"]:error["end"]] }}</b>{{ error["sentence"][error["end"]:] }} <span class="divider">→</span>
+            {% if error.replacement %}
+              <b>{{ error.replacement }}</b>
+            {% else %}
+              <span class="remove-text">remove bolded text</span>
+            {% endif %}
+          </p>
+          <br/>
+        </div>
+      </li>
     {% endfor %}
   </ul>
-  {% endif %}
-
-</div>
+{% endif %}
 
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-

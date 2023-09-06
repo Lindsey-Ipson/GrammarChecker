@@ -6,8 +6,6 @@ from models import db, User, Text, Grammar_Error, Spelling_Error
 os.environ['DATABASE_URL'] = "postgresql:///capstone1-test"
 from app import app, CURR_USER_KEY
 
-# app.app_context().push()
-
 app.config['WTF_CSRF_ENABLED'] = False
 # Make Flask errors be real errors, not HTML pages with error info
 app.config['TESTING'] = True
@@ -111,8 +109,8 @@ class ErrorViewsTestCase(TestCase):
             self.assertIn("<h1>Let\\\'s review your text!</h1>", str(resp.data))
             self.assertIn('<p class="submission-p">This are another grammar error example. This is another speling error example.</p>', str(resp.data))
             self.assertIn('<p class="submission-p">This is another grammar error example. This is another spelling error example.</p>', str(resp.data))
-            self.assertIn('<p>\\n        This <b>are</b> another grammar error example. <span class="divider">\\xe2\\x86\\x92</span> \\n         \\n          <b>is</b>', str(resp.data))
-            self.assertIn('<p>\\n            This is another <b>speling</b> error example. <span class="divider">\\xe2\\x86\\x92</span> \\n         \\n          <b>spelling</b>', str(resp.data))
+            self.assertIn('<p>\\n            This <b>are</b> another grammar error example. <span class="divider">\\xe2\\x86\\x92</span>\\n            \\n              <b>is</b>', str(resp.data))
+            self.assertIn('<p>\\n            This is another <b>speling</b> error example. <span class="divider">\\xe2\\x86\\x92</span>\\n            \\n              <b>spelling</b>', str(resp.data))
 
     
     def test_submit_text_over_text_limit(self):
@@ -123,7 +121,7 @@ class ErrorViewsTestCase(TestCase):
 
                     user = User.query.get(self.setup_user_id)
 
-                    for _ in range(25):
+                    for _ in range(35):
                         new_text = Text(
                             user_id=self.setup_user_id,
                             original_text='Another text'
@@ -206,9 +204,8 @@ class ErrorViewsTestCase(TestCase):
 
             self.assertEqual(resp.status_code, 200)
             self.assertIn("<h1>Let\\\'s review your grammar errors</h1>", str(resp.data))
-            # self.assertIn('alt="Grammar Errors Plot" id="grammar-graph-image', str(resp.data))
-            self.assertIn('<img src="/static/plots/grammar_errors_plot-setup_user.png" alt="Grammar Errors Plot" id="grammar-graph-image"/>', str(resp.data))
-            self.assertIn('<h3 class="error-heading"><span class="error-type">Incorrect subject-verb agreement</span><span class="error-count"> <span class="line-divider">\\xe2\\x94\\x82</span> 1 count', str(resp.data))
+            self.assertIn('<img src="/static/plots/grammar_errors_plot-setup_user.png" alt="Grammar Errors Plot"/>', str(resp.data))
+            self.assertIn('<h3 class="error-heading">\\n    <span class="error-type">Incorrect subject-verb agreement</span>\\n    <span class="error-count">\\n      <span class="line-divider">\\xe2\\x94\\x82</span>1 count', str(resp.data))
 
 
     def test_show_all_grammar_errors_not_logged_in(self):
@@ -221,17 +218,16 @@ class ErrorViewsTestCase(TestCase):
 
 
     def test_show_all_grammar_errors_no_errors(self):
-        with app.app_context():
-            with self.client as c:
-                with c.session_transaction() as sess:
-                    sess[CURR_USER_KEY] = self.setup_tester_id
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.setup_tester_id
 
-                resp = c.get(f'/show_all_grammar_errors', follow_redirects=True)
+            resp = c.get(f'/show_all_grammar_errors', follow_redirects=True)
 
-                self.assertEqual(resp.status_code, 200)
-                self.assertNotIn("<h1>Let\\\'s review your grammar errors</h1>", str(resp.data))
-                self.assertIn("You don&#39;t have any grammar errors yet! Keep submitting text to have your grammar errors collected.", str(resp.data))
-                self.assertIn('<h1>Submit New Text</h1>', str(resp.data))
+            self.assertEqual(resp.status_code, 200)
+            self.assertNotIn("<h1>Let\\\'s review your grammar errors</h1>", str(resp.data))
+            self.assertIn("You don&#39;t have any grammar errors yet! Keep submitting text to have your grammar errors collected.", str(resp.data))
+            self.assertIn('<h1>Submit New Text</h1>', str(resp.data))
 
  
     def test_show_all_spelling_errors_valid(self):
@@ -243,8 +239,8 @@ class ErrorViewsTestCase(TestCase):
 
             self.assertEqual(resp.status_code, 200)
             self.assertIn("<h1>Let\\\'s review your spelling errors</h1>", str(resp.data))
-            self.assertIn('<img src="/static/plots/spelling_errors_plot-setup_user.png" alt="Spelling Errors Plot" id="spelling-graph-image">', str(resp.data))
-            self.assertIn('<h3 class="error-heading"><span class="error-type">Here</span><span class="error-count"> <span class="line-divider">\\xe2\\x94\\x82</span> 1 count</span>', str(resp.data))
+            self.assertIn('<img src="/static/plots/spelling_errors_plot-setup_user.png" alt="Spelling Errors Plot">', str(resp.data))
+            self.assertIn('<h3 class="error-heading">\\n      <span class="error-type">Here</span>\\n      <span class="error-count"> \\n        <span class="line-divider">\\xe2\\x94\\x82</span> 1 count\\n      </span>', str(resp.data))
 
     
     def test_show_all_spelling_errors_not_logged_in(self):
@@ -257,17 +253,16 @@ class ErrorViewsTestCase(TestCase):
 
 
     def test_show_all_spelling_errors_no_errors(self):
-        with app.app_context():
-            with self.client as c:
-                with c.session_transaction() as sess:
-                    sess[CURR_USER_KEY] = self.setup_tester_id
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.setup_tester_id
 
-                resp = c.get(f'/show_all_spelling_errors', follow_redirects=True)
+            resp = c.get(f'/show_all_spelling_errors', follow_redirects=True)
 
-                self.assertEqual(resp.status_code, 200)
-                self.assertNotIn("<h1>Let\\\'s review your spelling errors</h1>", str(resp.data))
-                self.assertIn("You don&#39;t have any spelling errors yet! Keep submitting text to have your spelling errors collected.", str(resp.data))
-                self.assertIn('<h1>Submit New Text</h1>', str(resp.data))
+            self.assertEqual(resp.status_code, 200)
+            self.assertNotIn("<h1>Let\\\'s review your spelling errors</h1>", str(resp.data))
+            self.assertIn("You don&#39;t have any spelling errors yet! Keep submitting text to have your spelling errors collected.", str(resp.data))
+            self.assertIn('<h1>Submit New Text</h1>', str(resp.data))
 
 
     def test_get_more_errors(self):
@@ -296,6 +291,40 @@ class ErrorViewsTestCase(TestCase):
                 }, follow_redirects=True)
 
                 self.assertEqual(resp.status_code, 200)
-                self.assertIn('{\\n  "errors": [\\n    {\\n      "end": 8,\\n      "error_name": "Incorrect subject-verb agreement",\\n      "replacement": "is",\\n      "sentence": "Here are another grammar error example.",\\n      "start": 5\\n    },\\n    {\\n      "end": 8,\\n      "error_name": "Incorrect subject-verb agreement",\\n      "replacement": "is",\\n      "sentence": "Here are a grammar error example.",\\n      "start": 5\\n    }\\n  ],\\n  "has_more": false\\n}\\n', str(resp.data))
-                
+                self.assertIn('{\\n  "errors": [\\n    {\\n      "end": 8,\\n      "error_name": "Incorrect subject-verb agreement",\\n      "replacement": "is",\\n      "sentence": "Here are another grammar error example.",\\n      "start": 5,\\n      "text_id": 1\\n    },\\n    {\\n      "end": 8,\\n      "error_name": "Incorrect subject-verb agreement",\\n      "replacement": "is",\\n      "sentence": "Here are another grammar error example.",\\n      "start": 5,\\n      "text_id": 1\\n    },\\n    {\\n      "end": 8,\\n      "error_name": "Incorrect subject-verb agreement",\\n      "replacement": "is",\\n      "sentence": "Here are another grammar error example.",\\n      "start": 5,\\n      "text_id": 1\\n    },\\n    {\\n      "end": 8,\\n      "error_name": "Incorrect subject-verb agreement",\\n      "replacement": "is",\\n      "sentence": "Here are a grammar error example.",\\n      "start": 5,\\n      "text_id": 1\\n    }\\n  ],\\n  "has_more": false\\n}', str(resp.data))
 
+    
+    def test_review_previous_text(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.setup_user_id
+
+            resp = c.get(f'/review_previous_text/{self.setup_text_id}', follow_redirects=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("<h1>Let\\\'s review your text!</h1>", str(resp.data))
+            self.assertIn('<p class="submission-p">Here are a grammar error example. Hear is a spelling error example.</p>', str(resp.data))
+            self.assertIn('<p class="submission-p">Here is a grammar error example. Here is a spelling error example.</p>', str(resp.data))
+            self.assertIn('<p>\\n            Here <b>are</b> a grammar error example. <span class="divider">\\xe2\\x86\\x92</span>\\n            \\n              <b>is</b>', str(resp.data))
+            self.assertIn('<p>\\n            <b>Hear</b> is a spelling error example. <span class="divider">\\xe2\\x86\\x92</span>\\n            \\n              <b>Here</b>', str(resp.data))
+            
+
+    def test_review_previous_text_not_logged_in(self):
+        with self.client as c:
+            resp = c.get(f'/review_previous_text/{self.setup_text_id}', follow_redirects=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('Access unauthorized.', str(resp.data))
+            self.assertIn('Sign up to start improving your grammar and spelling skills today!', str(resp.data))
+
+
+    def test_review_previous_text_invalid_text_id(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.setup_user_id
+
+            resp = c.get(f'/review_previous_text/9999999', follow_redirects=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('Text not found.', str(resp.data))
+            self.assertIn('<h1>Submit New Text</h1>', str(resp.data))

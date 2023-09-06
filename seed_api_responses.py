@@ -65,9 +65,3 @@ seed_api_responses = [
 {'edits': [{'end': 11, 'error_type': 'U:VERB:TENSE', 'general_error_type': 'Grammar', 'id': '61774010-5361-591b-881c-e06e26d5dcb4', 'replacement': '', 'sentence': 'I have had returned the documents with miniscule adjustments.', 'sentence_start': 0, 'start': 7}, {'end': 36, 'error_type': 'R:SPELL', 'general_error_type': 'Spelling', 'id': '7d40fdb1-2a2a-5a23-91b1-f1e5e211712a', 'replacement': 'received', 'sentence': 'Let me know if you have not recieved it.', 'sentence_start': 62, 'start': 28}, {'end': 14, 'error_type': 'R:MORPH', 'general_error_type': 'Grammar', 'id': '580b3104-6e54-5efa-b0fe-655e263b0f6f', 'replacement': 'review', 'sentence': 'Please reviews and return the document by Wendsday.', 'sentence_start': 103, 'start': 7}, {'end': 50, 'error_type': 'R:SPELL', 'general_error_type': 'Spelling', 'id': 'f9ad6ae8-bb33-5958-8fb5-4ebfecc3f67c', 'replacement': 'Wednesday', 'sentence': 'Please reviews and return the document by Wendsday.', 'sentence_start': 103, 'start': 42}]}
 )
 ]
-
-
-
-
-
-

@@ -1,13 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div id="loading">
-  <h2>Please allow a moment for your texts and errors to be prepopulated...</h2>
-  <div class="loader"></div>
-</div>
-
-<div id="content" style="display: none;">
-
 <h1>Welcome to GrammarChecker!</h1>
 
 <div class="text-container">
@@ -17,26 +10,5 @@
   <p>Using the navigation bar above, click the <a class="in-text-link" href="/show_all_grammar_errors">Grammar</a> or <a class="in-text-link" href="/show_all_spelling_errors">Spelling</a> tab to see a breakdown of errors, or click <a class="in-text-link" href="/submit_text">Submit new text</a> to add your own text and have it reviewed.
   </p>
 </div>
-
-</div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-  $(document).ready(function () {
-    $("#loading").show();
-    $("#content").hide();
-    $.ajax({
-      type: "POST",
-      url: "/add_tester_texts",
-      success: function (data) {
-        $("#loading").hide();
-        $("#content").show();
-      },
-      error: function (error) {
-        console.error("Error: " + error);
-      }
-    });
-  });
-</script>
 
 {% endblock %}

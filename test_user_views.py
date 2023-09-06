@@ -6,8 +6,6 @@ from models import db, User
 os.environ['DATABASE_URL'] = "postgresql:///capstone1-test"
 from app import app, CURR_USER_KEY
 
-# app.app_context().push()
-
 app.config['WTF_CSRF_ENABLED'] = False
 # Make Flask errors be real errors, not HTML pages with error info
 app.config['TESTING'] = True
@@ -155,7 +153,7 @@ class UserViewsTestCase(TestCase):
 
             self.assertEqual(resp.status_code, 200)
             self.assertIn("You&#39;ve been logged out.", str(resp.data))
-            self.assertIn("Welcome back! Please login.", str(resp.data))
+            self.assertIn("Welcome to GrammarChecker!", str(resp.data))
 
 
     def test_homepage_not_logged_in(self):
@@ -171,7 +169,7 @@ class UserViewsTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.setup_user_id
 
-            resp = c.get("/new_user", follow_redirects=True)
+            resp = c.get("/homepage_user", follow_redirects=True)
 
             self.assertEqual(resp.status_code, 200)
             self.assertIn("Hello setup_user", str(resp.data))
@@ -184,7 +182,7 @@ class UserViewsTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.setup_tester_id
 
-            resp = c.get("/new_tester", follow_redirects=True)
+            resp = c.get("/homepage_tester", follow_redirects=True)
 
             self.assertEqual(resp.status_code, 200)
             self.assertIn("Hello setup_tester", str(resp.data))
