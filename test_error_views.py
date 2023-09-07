@@ -204,7 +204,7 @@ class ErrorViewsTestCase(TestCase):
 
             self.assertEqual(resp.status_code, 200)
             self.assertIn("<h1>Let\\\'s review your grammar errors</h1>", str(resp.data))
-            self.assertIn('<img src="/static/plots/grammar_errors_plot-setup_user.png" alt="Grammar Errors Plot"/>', str(resp.data))
+            self.assertIn('<img src=\\\'data:image/png;base64', str(resp.data))
             self.assertIn('<h3 class="error-heading">\\n    <span class="error-type">Incorrect subject-verb agreement</span>\\n    <span class="error-count">\\n      <span class="line-divider">\\xe2\\x94\\x82</span>1 count', str(resp.data))
 
 
@@ -239,7 +239,7 @@ class ErrorViewsTestCase(TestCase):
 
             self.assertEqual(resp.status_code, 200)
             self.assertIn("<h1>Let\\\'s review your spelling errors</h1>", str(resp.data))
-            self.assertIn('<img src="/static/plots/spelling_errors_plot-setup_user.png" alt="Spelling Errors Plot">', str(resp.data))
+            self.assertIn('<img src=\\\'data:image/png;base64', str(resp.data))
             self.assertIn('<h3 class="error-heading">\\n      <span class="error-type">Here</span>\\n      <span class="error-count"> \\n        <span class="line-divider">\\xe2\\x94\\x82</span> 1 count\\n      </span>', str(resp.data))
 
     
