@@ -3,7 +3,9 @@ import uuid
 import os
 from datetime import datetime
 from sqlalchemy import func
-import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+import base64
+from io import BytesIO
 
 from models import Grammar_Error, Spelling_Error, Text, db
 from seed_api_responses import seed_api_responses
@@ -254,35 +256,40 @@ def create_graph_lists(error_type_counts, general_error_type):
     return error_types, error_counts
 
 
-def create_errors_graph(error_types, error_counts, general_error_type, username):
-    plt.figure()
+def create_errors_graph(error_types, error_counts, general_error_type):
+    fig = Figure()
 
-    bars = plt.barh(error_types, error_counts, color="orangered")
+    ax = fig.add_subplot(111)
+    bars = ax.barh(error_types, error_counts, color="orangered")
 
-    plt.rcParams.update({
-        'xtick.color': 'purple',
-        'ytick.color': 'purple',
-        'axes.edgecolor': '#091f91',
-    })
+    ax.tick_params(axis='x', colors='purple')
+    ax.tick_params(axis='y', colors='purple')
+    ax.spines['left'].set_color('#091f91')
 
     if general_error_type == "Grammar":
         title = "Your Grammar Errors"
         ylabel = "Error Types"
-        save_filename = f'static/plots/grammar_errors_plot-{username}.png'
     else:
         title = "Your Spelling Errors"
         ylabel = "Misspelled Words/Phrases"
-        save_filename = f'static/plots/spelling_errors_plot-{username}.png'
 
     for bar in bars:
-        plt.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2, f'{bar.get_width()}%', ha='left', va='center', color="purple")
+        ax.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2, f'{bar.get_width()}%', ha='left', va='center', color="purple")
         bar.set_color("orangered")
 
-    plt.xlabel("Percentage", color="darkblue", fontsize=12)
-    plt.title(title, color="darkblue")
-    plt.ylabel(ylabel, color="darkblue", fontsize=12)
+    ax.set_xlabel("Percentage", color="darkblue", fontsize=12)
+    ax.set_title(title, color="darkblue")
+    ax.set_ylabel(ylabel, color="darkblue", fontsize=12)
 
-    return plt.savefig(save_filename, bbox_inches='tight')
+    buffer = BytesIO()
+    fig.savefig(buffer, format="png", bbox_inches='tight')
+    buffer.seek(0)
+
+    data = base64.b64encode(buffer.read()).decode("ascii")
+
+    img_tag = f"<img src='data:image/png;base64,{data}'/>"
+
+    return img_tag
 
 
 def add_tester_texts_to_db(user):

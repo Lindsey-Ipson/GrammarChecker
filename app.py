@@ -8,10 +8,6 @@ from errors import generate_api_response, isolate_errors_from_api_response, add_
 from forms import SignupForm, LoginForm, SubmitTextForm
 from models import db, connect_db, Text, User, Grammar_Error, Spelling_Error
 
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-
 import pdb
 
 CURR_USER_KEY = ""
@@ -280,11 +276,11 @@ def show_all_grammar_errors():
 
     error_types, error_counts = create_graph_lists(error_type_counts, 'Grammar')
 
-    create_errors_graph(error_types, error_counts, 'Grammar', user.username)
+    img_tag = create_errors_graph(error_types, error_counts, 'Grammar')
 
     html_errors = create_show_all_html_errors(error_type_counts, user.id, 'Grammar')
 
-    return render_template('all_grammar_errors.html', all_grammar_errors=html_errors, username = user.username)
+    return render_template('all_grammar_errors.html', img_tag=img_tag, all_grammar_errors=html_errors, username = user.username)
 
 
 @app.route('/show_all_spelling_errors', methods=["GET"])
@@ -304,11 +300,11 @@ def show_all_spelling_errors():
 
     error_types, error_counts = create_graph_lists(error_type_counts, 'Spelling')
 
-    create_errors_graph(error_types, error_counts, 'Spelling', user.username)
+    img_tag = create_errors_graph(error_types, error_counts, 'Spelling')
 
     html_errors = create_show_all_html_errors(error_type_counts, user.id, 'Spelling')
 
-    return render_template('all_spelling_errors.html', all_spelling_errors=html_errors, username=user.username)
+    return render_template('all_spelling_errors.html', img_tag=img_tag, all_spelling_errors=html_errors, username=user.username)
 
 
 @app.route('/get_more_errors', methods=['GET'])
