@@ -271,10 +271,8 @@ def create_errors_graph(error_types, error_counts, general_error_type):
     ax.spines['left'].set_color('purple')
 
     if general_error_type == "Grammar":
-        title = "Your Grammar Errors"
         ylabel = "Error Types"
     else:
-        title = "Your Spelling Errors"
         ylabel = "Misspelled Words/Phrases"
 
     for bar in bars:
@@ -282,7 +280,6 @@ def create_errors_graph(error_types, error_counts, general_error_type):
         bar.set_color("orangered")
 
     ax.set_xlabel("Percentage", color="darkblue", fontsize=12)
-    ax.set_title(title, color="darkblue")
     ax.set_ylabel(ylabel, color="darkblue", fontsize=12)
 
     buffer = BytesIO()
