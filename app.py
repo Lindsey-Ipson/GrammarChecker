@@ -76,7 +76,7 @@ def signup():
                 email=form.email.data
             )
             db.session.add(user)
-            db.session.commit()
+            db.session.commit()  
 
         except Exception as e:
             if 'duplicate key value violates unique constraint "users_username_key"' in str(e):

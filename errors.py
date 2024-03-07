@@ -264,7 +264,11 @@ def create_errors_graph(error_types, error_counts, general_error_type):
 
     ax.tick_params(axis='x', colors='purple')
     ax.tick_params(axis='y', colors='purple')
-    ax.spines['left'].set_color('#091f91')
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_color('purple')
+    ax.spines['left'].set_color('purple')
 
     if general_error_type == "Grammar":
         title = "Your Grammar Errors"
