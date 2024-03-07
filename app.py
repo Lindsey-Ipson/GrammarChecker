@@ -164,6 +164,12 @@ def logout():
 @app.route('/')
 def show_homepage_no_user():
 
+    if g.user:
+        user = g.user
+        if user.username.endswith('_tester'):
+            return render_template('homepage_tester.html', username=user.username)
+        return render_template('homepage_user.html', username=user.username)
+
     return render_template('homepage_no_user.html')
 
 
