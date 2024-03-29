@@ -2,7 +2,7 @@ import os
 from unittest import TestCase
 from sqlalchemy import exc
 
-os.environ['DATABASE_URL'] = "postgresql:///capstone1-test"
+os.environ['DATABASE_URL'] = "postgresql:///grammar_checker_test"
 from app import app
 
 app.config['TESTING'] = True

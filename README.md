@@ -1,6 +1,6 @@
 # GrammarChecker
 
-Deployed at https://capstone1-z7w1.onrender.com
+Deployed at https://grammarchecker-6rj1.onrender.com
 
 ## Summary
 
@@ -20,14 +20,16 @@ After signing up, the site’s main functionality can be accessed through the na
 
 ## Example Screenshots
 ### Review Grammar Errors
-![Grammar Errors Screenshot](https://github.com/Lindsey-Ipson/Capstone1/blob/main/README%20Files/Grammar_Errors_Screenshot.png)
+![Grammar Errors Screenshot](https://github.com/Lindsey-Ipson/GrammarChecker/blob/main/README%20Files/Grammar_Errors_Screenshot.png)
+### Review Grammar Errors Continued
+![Grammar Errors Continued Screenshot](https://github.com/Lindsey-Ipson/GrammarChecker/blob/main/README%20Files/Grammar_Errors_Continued_Screenshot.png)
 ### Review Spelling Errors
-![Spelling Errors Screenshot](https://github.com/Lindsey-Ipson/Capstone1/blob/main/README%20Files/Spelling_Errors_Screenshot.png)
+![Spelling Errors Screenshot](https://github.com/Lindsey-Ipson/GrammarChecker/blob/main/README%20Files/Spelling_Errors_Screenshot.png)
 ### Review Text Submission
-![Review Text Submission Screenshot](https://github.com/Lindsey-Ipson/Capstone1/blob/main/README%20Files/Text_Review_Screenshot.png)
+![Review Text Submission Screenshot](https://github.com/Lindsey-Ipson/GrammarChecker/blob/main/README%20Files/Text_Review_Screenshot.png)
 
 ## Schema
-![Database Schema](https://github.com/Lindsey-Ipson/Capstone1/blob/main/README%20Files/Database_Schema_Diagram.png)
+![Database Schema](https://github.com/Lindsey-Ipson/GrammarChecker/blob/main/README%20Files/Database_Schema_Diagram.png)
 
 ## Technology Used:
 

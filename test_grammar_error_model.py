@@ -3,7 +3,7 @@ from unittest import TestCase
 from flask import Flask
 from models import db, Text, User, Grammar_Error
 
-os.environ['DATABASE_URL'] = "postgresql:///capstone1-test"
+os.environ['DATABASE_URL'] = "postgresql:///grammar_checker_test"
 
 app = Flask(__name__)
 app.config['TESTING'] = True

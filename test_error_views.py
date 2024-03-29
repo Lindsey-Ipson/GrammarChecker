@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from models import db, User, Text, Grammar_Error, Spelling_Error
 
-os.environ['DATABASE_URL'] = "postgresql:///capstone1-test"
+os.environ['DATABASE_URL'] = "postgresql:///grammar_checker_test"
 from app import app, CURR_USER_KEY
 
 app.config['WTF_CSRF_ENABLED'] = False
